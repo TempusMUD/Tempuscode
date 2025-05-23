@@ -966,8 +966,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
                          "You are using both hands to wield your weapon right now!\r\n");
             return -1;
         }
-        if (GET_EQ(ch, WEAR_WIELD) && (GET_EQ(ch, WEAR_WIELD_2) ||
-                                       GET_EQ(ch, WEAR_HOLD) || GET_EQ(ch, WEAR_SHIELD))) {
+        if (!char_hands_free(ch)) {
             send_to_char(ch, "You need a hand free to do that!\r\n");
             return -1;
         }
@@ -1854,9 +1853,7 @@ perform_stun(struct creature *ch, struct creature *vict)
         send_to_char(ch, "You aren't able to get the right grip!");
         return;
     }
-    if ((GET_EQ(ch, WEAR_WIELD) && (GET_EQ(ch, WEAR_HOLD) ||
-                                    GET_EQ(ch, WEAR_WIELD_2))) ||
-        (GET_EQ(ch, WEAR_WIELD) && IS_TWO_HAND(GET_EQ(ch, WEAR_WIELD)))) {
+    if (!char_hands_free(ch)) {
         send_to_char(ch, "You need at least one hand free to do that!\r\n");
         return;
     }

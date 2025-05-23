@@ -629,8 +629,7 @@ ACMD(do_wrench)
         return;
     }
 
-    if (GET_EQ(ch, WEAR_WIELD) && (GET_EQ(ch, WEAR_WIELD_2) ||
-                                   GET_EQ(ch, WEAR_HOLD) || GET_EQ(ch, WEAR_SHIELD))) {
+    if (!char_hands_free(ch)) {
         send_to_char(ch, "You need a hand free to do that!\r\n");
         return;
     }

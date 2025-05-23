@@ -615,16 +615,14 @@ ACMD(do_pinch)
                      "Using this skill on yourself is probably a bad idea...\r\n");
         return;
     }
-    if (GET_EQ(ch, WEAR_WIELD)) {
-        if (IS_TWO_HAND(GET_EQ(ch, WEAR_WIELD))) {
-            send_to_char(ch,
-                         "You are using both hands to wield your weapon right now!\r\n");
-            return;
-        } else if (GET_EQ(ch, WEAR_HOLD) || GET_EQ(ch, WEAR_WIELD_2)) {
-            send_to_char(ch,
-                         "You need at least one hand free to do that!\r\n");
-            return;
-        }
+    if (GET_EQ(ch, WEAR_WIELD) && IS_TWO_HAND(GET_EQ(ch, WEAR_WIELD))) {
+        send_to_char(ch,
+                     "You are using both hands to wield your weapon right now!\r\n");
+        return;
+    }
+    if (!char_hands_free(ch)) {
+        send_to_char(ch, "You need at least one hand free to do that!\r\n");
+        return;
     }
 
     if (is_abbrev(pinch_str, "alpha")) {
