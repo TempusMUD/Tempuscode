@@ -3193,11 +3193,6 @@ ACMD(do_intimidate)
         }
     }
 
-    if (!can_see_creature(vict, ch)) {
-        act("$N doesn't seem to be able to see you.", false, ch, NULL, vict,
-            TO_CHAR);
-        return;
-    }
     if (vict == ch) {
         send_to_char(ch, "You attempt to intimidate yourself.\r\n"
                      "You feel intimidated!\r\n");
