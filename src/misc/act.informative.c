@@ -2438,7 +2438,7 @@ struct aff_flag_message {
     { 1, AFF2_FLUORESCENT, false, "The atoms in your vicinity are fluorescent." },
     { 1, AFF2_TRANSPARENT, false, "You are transparent." },
     { 1, AFF2_SLOW, true, "You feel unnaturally slowed." },
-    { 1, AFF2_HASTE, false, "You are moving very fast" },
+    { 1, AFF2_HASTE, false, "You are moving very fast." },
     { 1, AFF2_FIRE_SHIELD, false, "You are protected by a shield of fire." },
     { 1, AFF2_BERSERK, false, "You are BERSERK!" },
     { 1, AFF2_INTIMIDATED, true, "You have been thoroughly intimidated." },
