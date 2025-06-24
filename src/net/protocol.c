@@ -289,8 +289,8 @@ handle_new_environ_sub(struct descriptor_data *d, uint8_t *buf, size_t len) {
     } state = WANT_IS_OR_INFO;
     int start = 0;
     char empty[1] = {0};
-    char *name = &empty;
-    char *val = &empty;
+    char *name = empty;
+    char *val = empty;
     for (int i = 0;i < len;i++) {
         uint8_t c = buf[i];
         uint8_t isEnd = (i + 1 >= len);

@@ -1472,6 +1472,8 @@ int constitution_hitpoint_bonus(int con);
 int constitution_shock_bonus(int con);
 int wisdom_mana_bonus(int intel);
 
+int char_hands_free(struct creature *ch);
+
 struct aff_stash *stash_creature_affects(struct creature *ch)
 __attribute__ ((nonnull));
 void restore_creature_affects(struct creature *ch,
