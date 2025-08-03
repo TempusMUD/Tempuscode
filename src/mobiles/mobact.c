@@ -1307,10 +1307,6 @@ mob_reload_gun(struct creature *ch, struct obj_data *gun)
 bool
 check_infiltrate(struct creature *ch, struct creature *vict)
 {
-    if (!ch || !vict) {
-        errlog("NULL char in check_infiltrate()!");
-        return false;
-    }
 
     int prob = skill_bonus(ch, SKILL_INFILTRATE);
     int percent = number(1, 115);
@@ -1347,7 +1343,7 @@ check_infiltrate(struct creature *ch, struct creature *vict)
 
     percent += (skill_bonus(vict, SKILL_INFILTRATE) / 2);
 
-    if (ch && PRF2_FLAGGED(ch, PRF2_DEBUG)) {
+    if (PRF2_FLAGGED(ch, PRF2_DEBUG)) {
         send_to_char(ch, "%s[INFILTRATE] chance:%d   roll:%d%s\r\n",
                      CCCYN(ch, C_NRM), prob, percent, CCNRM(ch, C_NRM));
     }

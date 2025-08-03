@@ -137,7 +137,7 @@ isbanned(char *hostname, char *blocking_hostname, size_t buf_size)
 {
     int i = BAN_NOT;
 
-    if (!hostname || !*hostname) {
+    if (!*hostname) {
         return BAN_NOT;
     }
 
@@ -159,7 +159,7 @@ check_ban_all(GIOChannel *io, char *hostname)
 {
     struct ban_entry *node = NULL;
 
-    if (!hostname || !*(hostname)) {
+    if (!*(hostname)) {
         return false;
     }
 

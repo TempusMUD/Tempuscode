@@ -841,10 +841,6 @@ char_from_room(struct creature *ch, bool check_specials)
 {
     struct room_affect_data *rm_aff = NULL, *next_aff = NULL;
 
-    if (ch == NULL) {
-        errlog("NULL character in handler.c, char_from_room");
-        raise(SIGSEGV);
-    }
 
     if (ch->in_room == NULL) {
         errlog("NOWHERE character %s in handler.c, char_from_room", GET_NAME(ch));
@@ -936,11 +932,6 @@ char_to_room(struct creature *ch, struct room_data *room,
         return false;
     }
 
-    if (ch == NULL || room == NULL) {
-        errlog("Illegal value(s) passed to char_to_room");
-        raise(SIGSEGV);
-        return false;
-    }
 
     room->people = g_list_prepend(room->people, ch);
     ch->in_room = room;
@@ -1149,10 +1140,6 @@ obj_from_char(struct obj_data *object)
 {
     struct obj_data *temp;
 
-    if (object == NULL) {
-        errlog("NULL object passed to obj_from_char");
-        return;
-    }
 
     if (!object->carried_by) {
         errlog("object->carried_by == NULL in obj_from_char");
@@ -1238,7 +1225,7 @@ weapon_prof(struct creature *ch, struct obj_data *obj)
 
     int skill = 0;
 
-    if (!obj || !IS_OBJ_TYPE(obj, ITEM_WEAPON)) {
+    if (!IS_OBJ_TYPE(obj, ITEM_WEAPON)) {
         return 0;
     }
 
@@ -1710,11 +1697,6 @@ obj_from_room(struct obj_data *object)
 {
     struct obj_data *temp;
 
-    if (!object) {
-        errlog("NULL object passed to obj_from_room");
-        raise(SIGSEGV);
-        return;
-    }
     if (!object->in_room) {
         errlog("NULL object->in_room in obj_from_room");
         raise(SIGSEGV);

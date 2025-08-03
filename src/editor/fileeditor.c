@@ -55,15 +55,6 @@ start_editing_file(struct descriptor_data *d, const char *fname)
     FILE *inf = NULL;
     char *target;
 
-    if (!d) {
-        errlog("NULL desriptor passed into start_editing_file()!!");
-        return;
-    }
-    if (!fname) {
-        errlog("NULL file name pointer passed into start_editing_file()!!");
-        d_printf(d, "This command seems to be broken. Bug this.\r\n");
-        return;
-    }
     if (d->text_editor) {
         errlog("Text editor object not null in start_editing_file().");
         return;

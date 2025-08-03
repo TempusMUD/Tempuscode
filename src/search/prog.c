@@ -39,7 +39,7 @@ extern char locate_buf[256];
 
 static int loop_fence = 0;
 gint prog_tick = 0;
-GTrashStack *dead_progs = NULL;
+GList *dead_progs = NULL;
 GList *active_progs = NULL;
 
 #define DEFPROGHANDLER(cmd, env, evt, args) \
@@ -2093,8 +2093,10 @@ prog_start(enum prog_evt_type owner_type, void *owner, struct creature *target, 
         return NULL;
     }
 
-    new_prog = g_trash_stack_pop(&dead_progs);
-    if (!new_prog) {
+    if (dead_progs) {
+        new_prog = dead_progs->data;
+        dead_progs = g_list_delete_link(dead_progs, dead_progs);
+    } else {
         CREATE(new_prog, struct prog_env, 1);
     }
 
@@ -2680,7 +2682,7 @@ prog_free(struct prog_env *prog)
         }
     }
     active_progs = g_list_remove(active_progs, prog);
-    g_trash_stack_push(&dead_progs, prog);
+    dead_progs = g_list_prepend(dead_progs, prog);
 }
 
 static void
@@ -2774,7 +2776,7 @@ prog_update_pending(void)
 size_t
 free_prog_count(void)
 {
-    return g_trash_stack_height(&dead_progs);
+    return g_list_length(dead_progs);
 }
 
 size_t

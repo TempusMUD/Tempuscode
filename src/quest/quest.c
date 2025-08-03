@@ -2336,9 +2336,9 @@ do_qcontrol_flags(struct creature *ch, char *argument, int com)
         send_to_char(ch, "[%s] flags %s for quest %d.\r\n", buf2,
                      state == 1 ? "added" : "removed", quest->vnum);
 
-        snprintf(buf, sizeof(buf), "%s [%s] flags for quest %d '%s'.",
-                 state == 1 ? "added" : "removed", buf2, quest->vnum, quest->name);
-        qlog(ch, buf, QLOG_COMP, LVL_AMBASSADOR, true);
+        qlog(ch, tmp_sprintf("%s [%s] flags for quest %d '%s'.",
+                             state == 1 ? "added" : "removed", buf2, quest->vnum, quest->name), 
+             QLOG_COMP, LVL_AMBASSADOR, true);
     }
     save_quests();
 }

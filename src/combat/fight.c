@@ -1913,7 +1913,7 @@ damage(struct creature *ch, struct creature *victim,
     if ((af = affected_by_spell(victim, SPELL_LOCUST_REGENERATION)) && dam > 0) {
         // pc caster
         if (ch && !IS_NPC(ch) && GET_IDNUM(ch) == af->modifier) {
-            if (victim && (GET_MANA(victim) > 0)) {
+            if ((GET_MANA(victim) > 0)) {
                 int manadrain = MIN((int)(dam * 0.90), GET_MANA(victim));
                 if (GET_MOVE(ch) > 0) {
                     act(tmp_sprintf("You drain %d mana from $N!", manadrain),
@@ -2376,7 +2376,7 @@ damage(struct creature *ch, struct creature *victim,
                      GET_POSITION(victim), dam_reduction, CCNRM(ch, C_NRM));
     }
 
-    if (victim && ch != victim && PRF2_FLAGGED(victim, PRF2_DEBUG)) {
+    if (ch != victim && PRF2_FLAGGED(victim, PRF2_DEBUG)) {
         send_to_char(victim,
                      "%s[DAMAGE] %s   dam:%d   wait:%d   pos:%d   reduct:%.2f%s\r\n",
                      CCCYN(victim, C_NRM), GET_NAME(victim), dam, GET_WAIT(victim),
@@ -2672,7 +2672,7 @@ hit(struct creature *ch, struct creature *victim, int type)
         return false;
     }
 
-    if (ch && victim && !ok_to_attack(ch, victim, true)) {
+    if (!ok_to_attack(ch, victim, true)) {
         return false;
     }
 

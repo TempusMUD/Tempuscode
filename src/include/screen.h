@@ -74,7 +74,10 @@ enum {
 typedef unsigned char color_level_t;
 
 #define COLOR_LEV(ch) (_clrlevel(ch))
-#define DISPLAY_MODE(ch) ((ch == NULL || ch->desc == NULL) ? NORMAL:ch->desc->display)
+
+static inline enum display_mode DISPLAY_MODE(struct creature *ch) {
+    return (ch == NULL || ch->desc == NULL) ? NORMAL : ch->desc->display;
+}
 
 color_level_t _clrlevel(struct creature *ch);
 bool clr(struct creature *ch,color_level_t lvl);

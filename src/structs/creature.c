@@ -1499,10 +1499,6 @@ ok_to_attack(struct creature *ch, struct creature *vict, bool mssg)
 {
     extern int get_hunted_id(int hunter_id);
 
-    if (!vict) {
-        errlog("ERROR:  NULL victim passed to ok_to_attack()");
-        return false;
-    }
     // Immortals over level LVL_GOD can always attack
     // anyone they want
     if (GET_LEVEL(ch) >= LVL_GOD) {

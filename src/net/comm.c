@@ -601,7 +601,7 @@ compress_to_descriptor(struct descriptor_data *d, const char *txt, ssize_t len, 
 {
     uint8_t zbuf[ZBUF_LENGTH];
 
-    d->zout->next_in = (Bytef *)txt;
+    d->zout->next_in = (Bytef *)(uintptr_t)txt;
     d->zout->avail_in = len;
     d->zout->next_out = zbuf;
     d->zout->avail_out = ZBUF_LENGTH;
@@ -1357,7 +1357,7 @@ send_to_char(struct creature *ch, const char *str, ...)
     char *msg_str;
     va_list args;
 
-    if (!ch || !ch->desc || !str || !*str) {
+    if (!ch->desc || !*str) {
         return;
     }
 
@@ -1451,11 +1451,9 @@ send_to_all(const char *messg)
 {
     struct descriptor_data *i;
 
-    if (messg) {
-        for (i = descriptor_list; i; i = i->next) {
-            if (!i->input_mode) {
-                d_send(i, messg);
-            }
+    for (i = descriptor_list; i; i = i->next) {
+        if (!i->input_mode) {
+            d_send(i, messg);
         }
     }
 }
@@ -1465,7 +1463,7 @@ send_to_clerics(int align, const char *messg)
 {
     struct descriptor_data *i;
 
-    if (!messg || !*messg) {
+    if (!*messg) {
         return;
     }
 
@@ -1487,7 +1485,7 @@ send_to_outdoor(const char *messg, int isecho)
 {
     struct descriptor_data *i;
 
-    if (!messg || !*messg) {
+    if (!*messg) {
         return;
     }
 
@@ -1508,7 +1506,7 @@ send_to_newbie_helpers(const char *messg)
     struct descriptor_data *i;
     extern int level_can_shout;
 
-    if (!messg || !*messg) {
+    if (!*messg) {
         return;
     }
 
@@ -1589,7 +1587,7 @@ send_to_zone(const char *messg, struct zone_data *zn, int outdoor)
 {
     struct descriptor_data *i;
 
-    if (!messg || !*messg) {
+    if (!*messg) {
         return;
     }
 
@@ -1614,9 +1612,6 @@ send_to_room(const char *messg, struct room_data *room)
     char *str;
     int j;
 
-    if (!room || !messg) {
-        return;
-    }
 
     for (GList *it = first_living(room->people); it; it = next_living(it)) {
         i = it->data;
@@ -1684,13 +1679,11 @@ send_to_clan(const char *messg, int clan)
 {
     struct descriptor_data *i;
 
-    if (messg) {
-        for (i = descriptor_list; i; i = i->next) {
-            if (!i->input_mode && i->creature
-                && (GET_CLAN(i->creature) == clan)
-                && !PLR_FLAGGED(i->creature, PLR_OLC)) {
-                d_printf(i, "&c%s&n", messg);
-            }
+    for (i = descriptor_list; i; i = i->next) {
+        if (!i->input_mode && i->creature
+            && (GET_CLAN(i->creature) == clan)
+            && !PLR_FLAGGED(i->creature, PLR_OLC)) {
+            d_printf(i, "&c%s&n", messg);
         }
     }
 }
@@ -1964,7 +1957,7 @@ perform_act(const char *orig, struct creature *ch, struct obj_data *obj,
     static char lbuf[MAX_STRING_LENGTH];
     char outbuf[MAX_STRING_LENGTH];
 
-    if (!to || !to->desc || PLR_FLAGGED((to), PLR_WRITING)) {
+    if (!to->desc || PLR_FLAGGED((to), PLR_WRITING)) {
         return;
     }
 
@@ -1976,9 +1969,9 @@ perform_act(const char *orig, struct creature *ch, struct obj_data *obj,
     make_act_str(orig, lbuf, ch, obj, vict_obj, to);
 
     if (mode == 1) {
-        snprintf(outbuf, sizeof(outbuf), "(outside) %s", lbuf);
+        strcpy_s(outbuf, sizeof(outbuf), tmp_sprintf("(outside) %s", lbuf));
     } else if (mode == 2) {
-        snprintf(outbuf, sizeof(outbuf), "(remote) %s", lbuf);
+        strcpy_s(outbuf, sizeof(outbuf), tmp_sprintf("(remote) %s", lbuf));
     } else if (mode == 3) {
         struct room_data *toroom = NULL;
         if (ch != NULL && ch->in_room != NULL) {
@@ -1986,7 +1979,7 @@ perform_act(const char *orig, struct creature *ch, struct obj_data *obj,
         } else if (obj != NULL && obj->in_room != NULL) {
             toroom = obj->in_room;
         }
-        snprintf(outbuf, sizeof(outbuf), "(%s) %s", (toroom) ? toroom->name : "remote", lbuf);
+        strcpy_s(outbuf, sizeof(outbuf), tmp_sprintf("(%s) %s", (toroom) ? toroom->name : "remote", lbuf));
     } else {
         strcpy_s(outbuf, sizeof(outbuf), lbuf);
     }

@@ -189,10 +189,6 @@ fname(const char *namelist)
     static char holder[255];
     char *point;
 
-    if (!namelist) {
-        errlog("Null namelist passed to fname().");
-        return tmp_strdup("");
-    }
     for (point = holder; isalnum(*namelist); namelist++, point++) {
         *point = *namelist;
     }
@@ -211,7 +207,7 @@ isname(const char *str, const char *namelist)
         return 0;
     }
 
-    if (namelist == NULL || *namelist == '\0') {
+    if (*namelist == '\0') {
         errlog(" NULL namelist given to isname()");
         return 0;
     }
@@ -263,7 +259,7 @@ isname_exact(const char *str, const char *namelist)
         return 0;
     }
 
-    if (namelist == NULL || *namelist == '\0') {
+    if (*namelist == '\0') {
         errlog(" NULL namelist given to isname()");
         return 0;
     }
