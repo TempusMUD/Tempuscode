@@ -638,7 +638,7 @@ ACMD(do_wrench)
         act("You try to wrench your own head off, but fail.\r\n",
             false, ch, NULL, NULL, TO_CHAR);
         act("$n tries to wrench $s own head off, but fails.\r\n",
-            false, ch, NULL, NULL, TO_CHAR);
+            false, ch, NULL, NULL, TO_ROOM);
         return;
     }
 
