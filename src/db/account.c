@@ -869,7 +869,7 @@ account_deny_char_entry(struct account *account, struct creature *ch)
         return false;
     }
 
-    bool found = false;
+    int remorts = 0, mortals = 0;
 
     for (GList *it = first_living(creatures); it; it = next_living(it)) {
         struct creature *tch = it->data;
@@ -888,13 +888,24 @@ account_deny_char_entry(struct account *account, struct creature *ch)
         if (is_tester(ch) && is_authorized(tch, LOGIN_WITH_TESTER, NULL)) {
             return false;
         }
-        // We have a non-immortal already in the game, so they don't
-        // get to come in.  We keep searching, though, in case there's
-        // an override above.
-        found = true;
+        if (IS_REMORT(tch)) {
+            remorts++;
+        } else {
+            mortals++;
+        }
     }
 
-    return found;
+    // Deny multiplaying with a remort.
+    if (remorts) {
+        return true;
+    }
+    // Deny multiplaying with more than one mortal.
+    if (mortals > 1) {
+        return true;
+    }
+
+    // Disallow anything else.
+    return false;
 }
 
 bool
