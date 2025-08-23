@@ -54,7 +54,7 @@ enum {
     MAX_INPUT_LENGTH =      2048,
     MAX_RAW_INPUT_LENGTH =  32767,
     EXDSCR_LENGTH =         240,
-    MAX_MESSAGES =              200,
+    MAX_MESSAGES =              1000,
     MAX_CHAR_DESC =             1023,
     MAX_TONGUES =               50,
     MAX_SKILLS =                700,

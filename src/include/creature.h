@@ -359,8 +359,9 @@ enum prf2_flag {
     PRF2_DISPALIGN = (1 << 20),
     PRF2_WORLDWRITE = (1 << 21), // allows worldwrite to work
     PRF2_NOGUILDSAY = (1 << 22),
-    PRF2_DISPTIME = (1 << 23), // show localtime in the prompt
+    PRF2_DISPTIME = (1 << 23),   // show localtime in the prompt
     PRF2_DISP_VNUMS = (1 << 24), // show vnums after items ldesc
+    PRF2_SHOW_DAM = (1 << 25),   // show numeric damage
 };
 
 /* Affect bits: used in struct creature.char_specials.saved.affected_by */

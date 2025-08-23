@@ -4694,6 +4694,7 @@ show_all_toggles(struct creature *ch)
                  "      Clan hide: %-3s    "
                  "      Clan mail: %-3s\r\n"
                  "      Anonymous: %-3s    "
+                 "    Show Damage: %-3s    "
                  "        PKILLER: %-3s\r\n"
                  "\r\n",
                  ONOFF(PRF_FLAGGED(ch, PRF_DISPHP)),
@@ -4735,6 +4736,7 @@ show_all_toggles(struct creature *ch)
                  YESNO(PRF2_FLAGGED(ch, PRF2_CLAN_HIDE)),
                  YESNO(gets_clanmail),
                  YESNO(PRF2_FLAGGED(ch, PRF2_ANONYMOUS)),
+                 YESNO(PRF2_FLAGGED(ch, PRF2_SHOW_DAM)),
                  YESNO(PRF2_FLAGGED(ch, PRF2_PKILLER)));
 
     if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {

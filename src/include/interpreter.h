@@ -183,6 +183,7 @@ struct set_struct {
 #define SCMD_NOHAGGLE   49
 #define SCMD_NOPLUG     50
 #define SCMD_METRIC     51
+#define SCMD_SHOW_DAM   52
 
 /* do_wizutil */
 #define SCMD_REROLL 0

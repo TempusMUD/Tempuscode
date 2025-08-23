@@ -190,8 +190,8 @@ bool damage(struct creature *ch, struct creature *victim,
             struct obj_data *weapon,
             int dam, int attacktype, int location)
 __attribute__ ((nonnull (2)));
-int skill_message(int dam, struct creature *ch, struct creature *vict,
-                  struct obj_data *weapon, int attacktype)
+bool skill_message(int dam, struct creature *ch, struct creature *vict,
+                   struct obj_data *weapon, int attacktype)
 __attribute__ ((nonnull (3)));
 void best_initial_attack(struct creature *ch, struct creature *vict)
 __attribute__ ((nonnull));

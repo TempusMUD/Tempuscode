@@ -53,10 +53,14 @@ struct message_type {
     struct message_type *next;  /* to next messages of this kind.        */
 };
 
+enum {
+    MAX_MESSAGE_VARIATIONS = 5
+};
+
 struct message_list {
     int a_type;                 /* Attack type                                */
     int number_of_attacks;      /* How many attack messages to chose from. */
-    struct message_type *msg;   /* List of messages.                        */
+    struct message_type msg[MAX_MESSAGE_VARIATIONS];   /* Message variations */
 };
 
 extern struct player_special_data dummy_mob;    /* dummy spec area for mobs         */

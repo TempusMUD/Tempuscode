@@ -123,77 +123,74 @@ void
 load_messages(void)
 {
     FILE *fl;
-    int i, type = 0;
-    struct message_type *messages;
-    char chk[128];
+    char line[128];
 
     if (!(fl = fopen(MESS_FILE, "r"))) {
         perror(tmp_sprintf("Error opening combat message file %s", MESS_FILE));
         safe_exit(1);
     }
-    for (i = 0; i < MAX_MESSAGES; i++) {
+    for (int i = 0; i < MAX_MESSAGES; i++) {
         fight_messages[i].a_type = 0;
         fight_messages[i].number_of_attacks = 0;
-        fight_messages[i].msg = NULL;
     }
 
-    if (!fgets(chk, 128, fl)) {
+    if (!fgets(line, 128, fl)) {
         perror(tmp_sprintf
                    ("Error reading first line from combat message file %s",
                    MESS_FILE));
         safe_exit(1);
     }
-    while (!feof(fl) && (*chk == '\n' || *chk == '*')) {
-        if (!fgets(chk, 128, fl)) {
+    while (!feof(fl) && (*line == '\n' || *line == '*')) {
+        if (!fgets(line, 128, fl)) {
             perror(tmp_sprintf
                        ("Error reading header of combat message file %s", MESS_FILE));
             safe_exit(1);
         }
     }
 
-    while (*chk == 'M') {
-        if (!fgets(chk, 128, fl)) {
+    while (*line == 'M') {
+        if (!fgets(line, 128, fl)) {
             perror(tmp_sprintf("Error reading combat message file %s",
                                MESS_FILE));
             safe_exit(1);
         }
-        sscanf(chk, " %d\n", &type);
-        i = 0;
-        while (i < MAX_MESSAGES
-               && fight_messages[i].a_type && fight_messages[i].a_type != type) {
-            i++;
-        }
-        if (i >= MAX_MESSAGES) {
+        int type;
+        sscanf(line, " %d\n", &type);
+        if (type < 0 || type > MAX_MESSAGES) {
             fprintf(stderr,
-                    "Too many combat messages.  Increase MAX_MESSAGES and recompile.");
+                    "Message index %d out of bounds.  Increase MAX_MESSAGES and recompile.", type);
             safe_exit(1);
         }
-        CREATE(messages, struct message_type, 1);
-        fight_messages[i].number_of_attacks++;
-        fight_messages[i].a_type = type;
-        messages->next = fight_messages[i].msg;
-        fight_messages[i].msg = messages;
+        if (fight_messages[type].number_of_attacks == MAX_MESSAGE_VARIATIONS) {
+            fprintf(stderr,
+                    "Too many variations on attack %d.  Increase MAX_MESSAGE_VARIATIONS and recompile.", type);
+            safe_exit(1);
+        }
 
-        messages->die_msg.attacker_msg = fread_action(fl, i);
-        messages->die_msg.victim_msg = fread_action(fl, i);
-        messages->die_msg.room_msg = fread_action(fl, i);
-        messages->miss_msg.attacker_msg = fread_action(fl, i);
-        messages->miss_msg.victim_msg = fread_action(fl, i);
-        messages->miss_msg.room_msg = fread_action(fl, i);
-        messages->hit_msg.attacker_msg = fread_action(fl, i);
-        messages->hit_msg.victim_msg = fread_action(fl, i);
-        messages->hit_msg.room_msg = fread_action(fl, i);
-        messages->god_msg.attacker_msg = fread_action(fl, i);
-        messages->god_msg.victim_msg = fread_action(fl, i);
-        messages->god_msg.room_msg = fread_action(fl, i);
-        if (!fgets(chk, 128, fl)) {
+        struct message_type *message = &fight_messages[type].msg[fight_messages[type].number_of_attacks];
+        fight_messages[type].number_of_attacks++;
+        fight_messages[type].a_type = type;
+
+        message->die_msg.attacker_msg = fread_action(fl, type);
+        message->die_msg.victim_msg = fread_action(fl, type);
+        message->die_msg.room_msg = fread_action(fl, type);
+        message->miss_msg.attacker_msg = fread_action(fl, type);
+        message->miss_msg.victim_msg = fread_action(fl, type);
+        message->miss_msg.room_msg = fread_action(fl, type);
+        message->hit_msg.attacker_msg = fread_action(fl, type);
+        message->hit_msg.victim_msg = fread_action(fl, type);
+        message->hit_msg.room_msg = fread_action(fl, type);
+        message->god_msg.attacker_msg = fread_action(fl, type);
+        message->god_msg.victim_msg = fread_action(fl, type);
+        message->god_msg.room_msg = fread_action(fl, type);
+        if (!fgets(line, 128, fl)) {
             perror(tmp_sprintf
                        ("Error reading separator from combat message file %s",
                        MESS_FILE));
             safe_exit(1);
         }
-        while (!feof(fl) && (*chk == '\n' || *chk == '*')) {
-            if (!fgets(chk, 128, fl)) {
+        while (!feof(fl) && (*line == '\n' || *line == '*')) {
+            if (!fgets(line, 128, fl)) {
                 perror(tmp_sprintf
                            ("Error reading next message from combat message file %s",
                            MESS_FILE));
@@ -202,7 +199,6 @@ load_messages(void)
         }
     }
 
-    slog("Top message number loaded: %d.", type);
     fclose(fl);
 }
 
@@ -1257,6 +1253,9 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
         } else {
             send_to_char(ch, "%s", CCYEL(ch, C_NRM));
         }
+        if (PRF2_FLAGGED(ch, PRF2_SHOW_DAM)) {
+            buf = tmp_sprintf("%s [%d]", buf, dam);
+        }
         act(buf, false, ch, weapon, victim, TO_CHAR | TO_SLEEP);
         send_to_char(ch, "%s", CCNRM(ch, C_NRM));
     }
@@ -1311,6 +1310,9 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
         } else {
             send_to_char(victim, "%s", CCRED(victim, C_NRM));
         }
+        if (PRF2_FLAGGED(victim, PRF2_SHOW_DAM)) {
+            buf = tmp_sprintf("%s [%d]", buf, dam);
+        }
         act(buf, false, ch, weapon, victim, TO_VICT | TO_SLEEP);
         send_to_char(victim, "%s", CCNRM(victim, C_NRM));
     }
@@ -1324,111 +1326,131 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
  * message for doing damage with a spell or skill
  *  C3.0: Also used for weapon damage on miss and death blows
  */
-int
+bool
 skill_message(int dam, struct creature *ch, struct creature *vict,
               struct obj_data *weapon, int attacktype)
 {
-    int i, j, nr;
+    int nr;
     struct message_type *msg;
 
     if (search_nomessage) {
-        return 1;
+        return true;
     }
-    for (i = 0; i < MAX_MESSAGES; i++) {
-        if (fight_messages[i].a_type == attacktype) {
-            // Advance to random message for this attack
-            nr = dice(1, fight_messages[i].number_of_attacks);
-            for (j = 1, msg = fight_messages[i].msg; (j < nr) && msg; j++) {
-                msg = msg->next;
-            }
+    if (fight_messages[attacktype].number_of_attacks == 0) {
+        errlog("No messages for attacktype == %d", attacktype);
+        return false;
+    }
 
-            // Log an error if no message was found
-            if (!msg) {
-                errlog("Message %d missing for attacktype == %d",
-                       j, attacktype);
-                return 1;
-            }
-            // occassionally behead while slashing
-            if (attacktype == TYPE_SLASH && nr == 1
-                && !isname("headless", vict->player.name)) {
-                corpse_state = SKILL_BEHEAD;
-            } else {
-                corpse_state = 0;
-            }
+    // Select random message for this attack
+    nr = random_number_zero_low(fight_messages[attacktype].number_of_attacks-1);
+    msg = &fight_messages[attacktype].msg[nr];
 
-            if (!IS_NPC(vict) && GET_LEVEL(vict) >= LVL_AMBASSADOR &&
-                (!PLR_FLAGGED(vict, PLR_MORTALIZED) || dam == 0)) {
-                act(msg->god_msg.attacker_msg, false, ch, weapon, vict, TO_CHAR);
-                act(msg->god_msg.victim_msg, false, ch, weapon, vict, TO_VICT);
-                act(msg->god_msg.room_msg, false, ch, weapon, vict, TO_NOTVICT);
-            } else if (dam != 0) {
-                if (GET_POSITION(vict) == POS_DEAD) {
-                    if (ch) {
-                        act(msg->die_msg.room_msg, false, ch, weapon, vict,
-                            TO_NOTVICT | TO_VICT_RM);
-                        if (ch != vict &&
-                            find_distance(ch->in_room, vict->in_room) < 3) {
-                            send_to_char(ch, "%s", CCYEL(ch, C_NRM));
-                            act(msg->die_msg.attacker_msg, false, ch, weapon,
-                                vict, TO_CHAR);
-                            send_to_char(ch, "%s", CCNRM(ch, C_NRM));
-                        }
+    // Log an error if no message was found
+    if (!msg) {
 
+        return true;
+    }
+    // occasionally behead while slashing
+    if (attacktype == TYPE_SLASH && nr == 1
+        && !isname("headless", vict->player.name)) {
+        corpse_state = SKILL_BEHEAD;
+    } else {
+        corpse_state = 0;
+    }
+
+    if (!IS_NPC(vict) && GET_LEVEL(vict) >= LVL_AMBASSADOR &&
+        (!PLR_FLAGGED(vict, PLR_MORTALIZED) || dam == 0)) {
+        act(msg->god_msg.attacker_msg, false, ch, weapon, vict, TO_CHAR);
+        act(msg->god_msg.victim_msg, false, ch, weapon, vict, TO_VICT);
+        act(msg->god_msg.room_msg, false, ch, weapon, vict, TO_NOTVICT);
+    } else if (dam != 0) {
+        if (GET_POSITION(vict) == POS_DEAD) {
+            if (ch) {
+                act(msg->die_msg.room_msg, false, ch, weapon, vict,
+                    TO_NOTVICT | TO_VICT_RM);
+                if (ch != vict &&
+                    find_distance(ch->in_room, vict->in_room) < 3) {
+                    send_to_char(ch, "%s", CCYEL(ch, C_NRM));
+                    const char *emit = msg->die_msg.attacker_msg;
+                    if (PRF2_FLAGGED(ch, PRF2_SHOW_DAM)) {
+                        emit = tmp_sprintf("%s [%d]", emit, dam);
                     }
-
-                    send_to_char(vict, "%s", CCRED(vict, C_NRM));
-                    act(msg->die_msg.victim_msg, false, ch, weapon, vict,
-                        TO_VICT | TO_SLEEP);
-                    send_to_char(vict, "%s", CCNRM(vict, C_NRM));
-
-                } else {
-                    if (ch) {
-                        act(msg->hit_msg.room_msg, false, ch, weapon, vict,
-                            TO_NOTVICT | TO_VICT_RM);
-                        if (ch != vict && ch->in_room == vict->in_room) {
-                            send_to_char(ch, "%s", CCYEL(ch, C_NRM));
-                            act(msg->hit_msg.attacker_msg, false, ch, weapon,
-                                vict, TO_CHAR);
-                            send_to_char(ch, "%s", CCNRM(ch, C_NRM));
-                        }
-                    }
-
-                    send_to_char(vict, "%s", CCRED(vict, C_NRM));
-                    act(msg->hit_msg.victim_msg, false, ch, weapon, vict,
-                        TO_VICT | TO_SLEEP);
-                    send_to_char(vict, "%s", CCNRM(vict, C_NRM));
-
-                }
-            } else if (ch != vict) {    /* Dam == 0 */
-                if (ch && (!IS_WEAPON(attacktype)
-                           || !PRF_FLAGGED(ch, PRF_GAGMISS))) {
-                    if (ch->in_room == vict->in_room) {
-                        send_to_char(ch, "%s", CCYEL(ch, C_NRM));
-                        act(msg->miss_msg.attacker_msg, false, ch, weapon, vict,
-                            TO_CHAR);
-                        send_to_char(ch, "%s", CCNRM(ch, C_NRM));
-                    }
-
-                    act(msg->miss_msg.room_msg, false, ch, weapon, vict,
-                        TO_NOTVICT | TO_VICT_RM);
-                }
-
-                if (!IS_WEAPON(attacktype)
-                    || !PRF_FLAGGED(vict, PRF_GAGMISS)) {
-                    send_to_char(vict, "%s", CCRED(vict, C_NRM));
-                    act(msg->miss_msg.victim_msg, false, ch, weapon, vict,
-                        TO_VICT | TO_SLEEP);
-                    send_to_char(vict, "%s", CCNRM(vict, C_NRM));
+                    act(emit, false, ch, weapon,
+                        vict, TO_CHAR);
+                    send_to_char(ch, "%s", CCNRM(ch, C_NRM));
                 }
             }
-            if (BLOODLET(vict, dam, attacktype)) {
-                blood_spray(ch, vict, weapon, dam, attacktype);
+
+            send_to_char(vict, "%s", CCRED(vict, C_NRM));
+            const char *emit = msg->die_msg.victim_msg;
+            if (PRF2_FLAGGED(vict, PRF2_SHOW_DAM)) {
+                emit = tmp_sprintf("%s [%d]", emit, dam);
+            }
+            act(emit, false, ch, weapon, vict,
+                TO_VICT | TO_SLEEP);
+            send_to_char(vict, "%s", CCNRM(vict, C_NRM));
+
+        } else {
+            if (ch) {
+                act(msg->hit_msg.room_msg, false, ch, weapon, vict,
+                    TO_NOTVICT | TO_VICT_RM);
+                if (ch != vict && ch->in_room == vict->in_room) {
+                    send_to_char(ch, "%s", CCYEL(ch, C_NRM));
+                    const char *emit = msg->hit_msg.attacker_msg;
+                    if (PRF2_FLAGGED(ch, PRF2_SHOW_DAM)) {
+                        emit = tmp_sprintf("%s [%d]", emit, dam);
+                    }
+                    act(emit, false, ch, weapon,
+                        vict, TO_CHAR);
+                    send_to_char(ch, "%s", CCNRM(ch, C_NRM));
+                }
             }
 
-            return 1;
+            send_to_char(vict, "%s", CCRED(vict, C_NRM));
+            const char *emit = msg->hit_msg.victim_msg;
+            if (PRF2_FLAGGED(vict, PRF2_SHOW_DAM)) {
+                emit = tmp_sprintf("%s [%d]", emit, dam);
+            }
+            act(emit, false, ch, weapon, vict,
+                TO_VICT | TO_SLEEP);
+            send_to_char(vict, "%s", CCNRM(vict, C_NRM));
+
+        }
+    } else if (ch != vict) {    /* Dam == 0 */
+        if (ch && (!IS_WEAPON(attacktype)
+                   || !PRF_FLAGGED(ch, PRF_GAGMISS))) {
+            if (ch->in_room == vict->in_room) {
+                send_to_char(ch, "%s", CCYEL(ch, C_NRM));
+                const char *emit = msg->miss_msg.attacker_msg;
+                if (PRF2_FLAGGED(ch, PRF2_SHOW_DAM)) {
+                    emit = tmp_sprintf("%s [%d]", emit, dam);
+                }
+                act(emit, false, ch, weapon, vict,
+                    TO_CHAR);
+                send_to_char(ch, "%s", CCNRM(ch, C_NRM));
+            }
+
+            act(msg->miss_msg.room_msg, false, ch, weapon, vict,
+                TO_NOTVICT | TO_VICT_RM);
+        }
+
+        if (!IS_WEAPON(attacktype)
+            || !PRF_FLAGGED(vict, PRF_GAGMISS)) {
+            send_to_char(vict, "%s", CCRED(vict, C_NRM));
+            const char *emit = msg->miss_msg.victim_msg;
+            if (PRF2_FLAGGED(vict, PRF2_SHOW_DAM)) {
+                emit = tmp_sprintf("%s [%d]", emit, dam);
+            }
+            act(emit, false, ch, weapon, vict,
+                TO_VICT | TO_SLEEP);
+            send_to_char(vict, "%s", CCNRM(vict, C_NRM));
         }
     }
-    return 0;
+    if (BLOODLET(vict, dam, attacktype)) {
+        blood_spray(ch, vict, weapon, dam, attacktype);
+    }
+
+    return true;
 }
 
 #undef __combat_code__

@@ -1255,6 +1255,7 @@ struct command_info cmd_info[] = {
     {"shoulderthrow", POS_FIGHTING, do_offensive_skill, 0,
      SKILL_SHOULDER_THROW, 0, 0},
     {"show", POS_DEAD, do_show, LVL_AMBASSADOR, 0, 0, 0},
+    {"showdam", POS_DEAD, do_gen_tog, 0, SCMD_SHOW_DAM, 0, 0},
     {"shower", POS_RESTING, do_not_here, 0, 0, 0, 0},
     {"shoot", POS_SITTING, do_shoot, 0, 0, 0, 0},
     {"shrug", POS_RESTING, do_action, 0, 0, 0, 0},

@@ -1186,6 +1186,8 @@ ACMD(do_gen_tog)
          "You no longer hear criers plug tempus.\r\n"},
         {"You are now using the imperial system of measurement.\r\n",
          "You are now using the metric system of measurement.\r\n"},
+        {"You no longer perceive numeric damage.\r\n",
+         "You are now are perceiving numeric damage.\r\n"},
         {"\n", "\n"}
     };
 
@@ -1401,6 +1403,9 @@ ACMD(do_gen_tog)
         }
         result = !ch->desc->account->metric_units;
         account_set_metric(ch->desc->account, result);
+        break;
+    case SCMD_SHOW_DAM:
+        result = PRF2_TOG_CHK(ch, PRF2_SHOW_DAM);
         break;
     default:
         errlog("Unknown subcmd in do_gen_toggle");
