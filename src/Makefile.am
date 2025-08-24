@@ -63,6 +63,7 @@ ETAGSFLAGS = --regex='/^ASPELL(\\([a-zA-Z0-9_]+\\))$/\\1/' --regex='/^ACMD(\\([a
                  misc/act.movement.c \
                  misc/act.obj.c \
                  misc/act.other.c \
+                 misc/act.settings.c \
                  misc/act.wizard.c \
                  misc/config.c \
                  misc/limits.c \

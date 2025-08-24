@@ -72,6 +72,9 @@ __attribute__((sentinel));
 // returns a string with leading and trailing spaces removed
 /*@shared@*/ char *tmp_trim(const char *str);
 
+// Returns a string with the contents of strlist separated by delim
+/*@shared@*/ char *tmp_join(const char *delim, const char *strlist[]);
+
 // returns a formatted string word-wrapped to the given width, the
 // first line indented by first_indent, lines preceded by a line break
 // are indented by par_indent, and the rest of the lines indented by

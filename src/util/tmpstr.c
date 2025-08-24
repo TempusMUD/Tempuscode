@@ -11,6 +11,7 @@
 #include "tmpstr.h"
 #include "utils.h"
 #include "strutil.h"
+#include "str_builder.h"
 
 struct tmp_str_pool {
     struct tmp_str_pool *next;  // Ptr to next in linked list
@@ -1011,4 +1012,20 @@ tmp_wrap(const char *str, int width, int first_indent, int par_indent, int rest_
     cur_buf->used += wanted;
 
     return result;
+}
+
+char *
+tmp_join(const char *delim, const char *strlist[])
+{
+    struct str_builder sb = str_builder_default;
+
+    // Handle empty case.
+    if (strlist[0][0] == '\n') {
+        return "";
+    }
+    sb_strcat(&sb, strlist[0], NULL);
+    for (int i = 1;strlist[i][0] != '\n';i++) {
+        sb_strcat(&sb, delim, strlist[i], NULL);
+    }
+    return sb.str;
 }

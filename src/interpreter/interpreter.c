@@ -338,6 +338,7 @@ ACMD(do_searchfor);
 ACMD(do_self_destruct);
 ACMD(do_send);
 ACMD(do_set);
+ACMD(do_settings);
 ACMD(do_severtell);
 ACMD(do_shoot);
 ACMD(do_show);
@@ -1246,6 +1247,7 @@ struct command_info cmd_info[] = {
     {"send", POS_SLEEPING, do_send, LVL_IMMORT, 0, 0, 0},
     {"serenade", POS_RESTING, do_action, 0, 0, 0, 0},
     {"set", POS_DEAD, do_set, LVL_IMMORT, 0, 0, 0},
+    {"settings", POS_DEAD, do_settings, 0, 0, 0, 0},
     {"severtell", POS_DEAD, do_severtell, LVL_IMMORT, 0, 0, 0},
     {"shout", POS_RESTING, do_gen_comm, 0, SCMD_SHOUT, 0, 0},
     {"shake", POS_RESTING, do_action, 0, 0, 0, 0},

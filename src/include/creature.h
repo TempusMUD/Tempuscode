@@ -311,7 +311,7 @@ enum prf_flag {
     PRF_AUTOEXIT = (1 << 7),    /* Display exits in a room        */
     PRF_NOHASSLE = (1 << 8),    /* Aggr mobs won't attack        */
     PRF_NASTY = (1 << 9),   /* Can hear nasty words on channel */
-    PRF_SUMMONABLE = (1 << 10), /* Can be summoned            */
+    PRF_UNUSED = (1 << 10),
     PRF_NOPLUG = (1 << 11), /* No repetition of comm commands    */
     PRF_HOLYLIGHT = (1 << 12),  /* Can see in dark            */
     PRF_COLOR_1 = (1 << 13),    /* Color (low bit)            */

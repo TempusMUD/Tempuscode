@@ -59,10 +59,11 @@ check_tempus_LDADD = \
                  $(top_builddir)/src/magic/spell_parser.o \
                  $(top_builddir)/src/magic/spells.o \
                  $(top_builddir)/src/misc/act.comm.o \
-                 $(top_builddir)/src/misc/act.informative.o \
+				 $(top_builddir)/src/misc/act.informative.o \
                  $(top_builddir)/src/misc/act.movement.o \
                  $(top_builddir)/src/misc/act.obj.o \
                  $(top_builddir)/src/misc/act.other.o \
+                 $(top_builddir)/src/misc/act.settings.o \
                  $(top_builddir)/src/misc/act.wizard.o \
                  $(top_builddir)/src/misc/config.o \
                  $(top_builddir)/src/misc/limits.o \
