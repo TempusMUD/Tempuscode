@@ -151,7 +151,6 @@ struct set_struct {
 #define SCMD_GAGMISS    17
 #define SCMD_AUTOPAGE   18
 #define SCMD_NOCLANSAY  19
-#define SCMD_NOIDENTIFY 20
 #define SCMD_DEBUG      21
 #define SCMD_NEWBIE_HELP 22
 #define SCMD_AUTO_DIAGNOSE 23

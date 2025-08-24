@@ -311,7 +311,7 @@ enum prf_flag {
     PRF_AUTOEXIT = (1 << 7),    /* Display exits in a room        */
     PRF_NOHASSLE = (1 << 8),    /* Aggr mobs won't attack        */
     PRF_NASTY = (1 << 9),   /* Can hear nasty words on channel */
-    PRF_UNUSED = (1 << 10),
+    PRF_UNUSED_1 = (1 << 10),
     PRF_NOPLUG = (1 << 11), /* No repetition of comm commands    */
     PRF_HOLYLIGHT = (1 << 12),  /* Can see in dark            */
     PRF_COLOR_1 = (1 << 13),    /* Color (low bit)            */
@@ -330,7 +330,7 @@ enum prf_flag {
     PRF_NOPROJECT = (1 << 26),  /* Cannot hear the remort channel     */
     PRF_NOPETITION = (1 << 27),
     PRF_NOCLANSAY = (1 << 28),  /* Doesnt hear clan says and such     */
-    PRF_NOIDENTIFY = (1 << 29), /* Saving throw is made when id'd     */
+    PRF_UNUSED_2 = (1 << 29),
     PRF_NODREAM = (1 << 30),
 };
 

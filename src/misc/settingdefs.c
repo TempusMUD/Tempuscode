@@ -9,9 +9,6 @@ SETTING(allow_clanmail, NULL, ONOFF(!PLR_FLAGGED(ch, PLR_NOCLANMAIL)), set_pflag
 SETTING(allow_hassle, "OLC", ONOFF(!PRF_FLAGGED(ch, PRF_NOHASSLE)), set_pref_invbit(ch, val, 1, PRF_NOHASSLE),
         "Allow mobs to attack you unprovoked.")
 
-SETTING(allow_identify, NULL, ONOFF(!PRF_FLAGGED(ch, PRF_NOIDENTIFY)), set_pref_invbit(ch, val, 1, PRF_NOIDENTIFY),
-        "Allow other players to identify you.")
-
 SETTING(allow_pkilling, NULL, ONOFF(PRF2_FLAGGED(ch, PRF2_PKILLER)), set_pref_bit(ch, val, 2, PRF2_PKILLER),
         "Allow yourself to attack other players.")
 
@@ -124,10 +121,10 @@ SETTING(pref_debug, "OLC", ONOFF(PRF2_FLAGGED(ch, PRF2_DEBUG)), set_pref_bit(ch,
 SETTING(pref_holylight, "OLC", ONOFF(PRF_FLAGGED(ch, PRF_HOLYLIGHT)), set_pref_bit(ch, val, 1, PRF_HOLYLIGHT),
         "Everything is visible to you")
 
-SETTING(pref_poofin, NULL, get_pref_str(POOFIN(ch)), set_pref_str(ch, val, &POOFIN(ch)),
+SETTING(pref_poofin, "OLC", get_pref_str(POOFIN(ch)), set_pref_str(ch, val, &POOFIN(ch)),
         "Message emitted when you transport yourself into a room.")
 
-SETTING(pref_poofout, NULL, get_pref_str(POOFOUT(ch)), set_pref_str(ch, val, &POOFOUT(ch)),
+SETTING(pref_poofout, "OLC", get_pref_str(POOFOUT(ch)), set_pref_str(ch, val, &POOFOUT(ch)),
         "Message emitted when you transport yourself out of a room.")
 
 SETTING(pref_wimpy, NULL,
@@ -135,7 +132,7 @@ SETTING(pref_wimpy, NULL,
         set_pref_int(&ch->player_specials->saved.wimp_level, val, 0, GET_MAX_HIT(ch)/2),
         "Automatically flee if damaged below these hitpoints")
 
-SETTING(pref_worldwrite, NULL, ONOFF(PRF2_FLAGGED(ch, PRF2_WORLDWRITE)), set_pref_bit(ch, val, 2, PRF2_WORLDWRITE),
+SETTING(pref_worldwrite, "OLCWorldWrite", ONOFF(PRF2_FLAGGED(ch, PRF2_WORLDWRITE)), set_pref_bit(ch, val, 2, PRF2_WORLDWRITE),
         "Enable worldwrite")
 
 SETTING(prompt_autodiagnose, NULL, ONOFF(PRF2_FLAGGED(ch, PRF2_AUTO_DIAGNOSE)), set_pref_bit(ch, val, 2, PRF2_AUTO_DIAGNOSE),
