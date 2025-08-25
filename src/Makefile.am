@@ -125,4 +125,5 @@ ETAGSFLAGS = --regex='/^ASPELL(\\([a-zA-Z0-9_]+\\))$/\\1/' --regex='/^ACMD(\\([a
 				 util/tmpstr.c \
 				 util/strutil.c \
                  util/utils.c \
+				 util/xmlc.c \
                  weather/weather.c

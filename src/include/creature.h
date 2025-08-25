@@ -1475,7 +1475,7 @@ int wisdom_mana_bonus(int intel);
 
 int char_hands_free(struct creature *ch);
 
-struct aff_stash *stash_creature_affects(struct creature *ch)
+void stash_creature_affects(struct creature *ch, struct aff_stash *aff_stash)
 __attribute__ ((nonnull));
 void restore_creature_affects(struct creature *ch,
                               struct aff_stash *aff_stash)
