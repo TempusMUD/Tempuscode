@@ -15,13 +15,15 @@
 
 #include "tmpstr.h"
 #include "utils.h"
-#include "xml.h"
+#include "xmlc.h"
+
+void *tmp_alloc(size_t size_req);
 
 struct xmlc_node *
 xml_null_node(void)
 {
     struct xmlc_node *result;
-    CREATE(result, struct xmlc_node, 1);
+    result = tmp_alloc(sizeof(struct xmlc_node));
     result->kind = XMLC_NULL;
 
     return result;
@@ -35,7 +37,7 @@ xml_node(const char *tag, ...)
     struct xmlc_node *last_attr = NULL;
     struct xmlc_node *last_child = NULL;
 
-    CREATE(result, struct xmlc_node, 1);
+    result = tmp_alloc(sizeof(struct xmlc_node));
     result->kind = XMLC_NODE;
     result->tag = tag;
 
@@ -78,7 +80,6 @@ xml_node(const char *tag, ...)
             break;
         case XMLC_TEXT:
             result->text = sn->text;
-            free(sn);
             break;
         }
 
@@ -92,7 +93,7 @@ struct xmlc_node *
 xml_int_attr(const char *attr, int val)
 {
     struct xmlc_node *result;
-    CREATE(result, struct xmlc_node, 1);
+    result = tmp_alloc(sizeof(struct xmlc_node));
     result->kind = XMLC_ATTR;
     result->tag = attr;
     result->val = tmp_sprintf("%d", val);
@@ -103,7 +104,7 @@ struct xmlc_node *
 xml_hex_attr(const char *attr, int val)
 {
     struct xmlc_node *result;
-    CREATE(result, struct xmlc_node, 1);
+    result = tmp_alloc(sizeof(struct xmlc_node));
     result->kind = XMLC_ATTR;
     result->tag = attr;
     result->val = tmp_sprintf("%x", val);
@@ -114,7 +115,7 @@ struct xmlc_node *
 xml_float_attr(const char *attr, float val)
 {
     struct xmlc_node *result;
-    CREATE(result, struct xmlc_node, 1);
+    result = tmp_alloc(sizeof(struct xmlc_node));
     result->kind = XMLC_ATTR;
     result->tag = attr;
     result->val = tmp_sprintf("%f", val);
@@ -126,7 +127,7 @@ xml_str_attr(const char *attr, const char *val)
 {
     struct xmlc_node *result;
 
-    CREATE(result, struct xmlc_node, 1);
+    result = tmp_alloc(sizeof(struct xmlc_node));
     result->kind = XMLC_ATTR;
     result->tag = attr;
     result->val = val;
@@ -138,7 +139,7 @@ xml_bool_attr(const char *attr, bool val)
 {
     struct xmlc_node *result;
 
-    CREATE(result, struct xmlc_node, 1);
+    result = tmp_alloc(sizeof(struct xmlc_node));
     result->kind = XMLC_ATTR;
     result->tag = attr;
     result->val = val ? "yes":"no";
@@ -153,7 +154,7 @@ xml_text(const char *text)
     }
 
     struct xmlc_node *result;
-    CREATE(result, struct xmlc_node, 1);
+    result = tmp_alloc(sizeof(struct xmlc_node));
     result->kind = XMLC_TEXT;
     result->text = tmp_gsub(text, "\r", "");
     return result;
@@ -173,7 +174,7 @@ xml_splice(struct xmlc_node *node)
 {
     struct xmlc_node *result;
 
-    CREATE(result, struct xmlc_node, 1);
+    result = tmp_alloc(sizeof(struct xmlc_node));
     result->kind = XMLC_SPLICE;
     result->children = node;
     return result;
