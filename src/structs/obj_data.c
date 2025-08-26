@@ -28,6 +28,7 @@
 #include "spells.h"
 #include "strutil.h"
 #include "bomb.h"
+#include "xmlc.h"
 
 extern int no_plrtext;
 
@@ -786,141 +787,232 @@ load_object_from_xml(struct obj_data *container,
     return obj;
 }
 
-void
-save_object_to_xml(struct obj_data *obj, FILE *ouf)
+static bool
+should_write_str(const char *str, struct obj_data *proto, const char *proto_str)
 {
-    struct tmp_obj_affect *af = NULL;
-    struct tmp_obj_affect *af_head = NULL;
-    static char indent[512] = "  ";
-    fprintf(ouf, "%s<object vnum=\"%d\">\n", indent, obj->shared->vnum);
-    strcat_s(indent, sizeof(indent), "  ");
+    return str && (proto == NULL || proto_str == NULL || !streq(str, proto_str));
+}
 
+struct xmlc_node *xml_collect_obj_list(struct obj_data *obj_list);
+
+struct xmlc_node *
+xml_collect_extra_descs(struct extra_descr_data *desc_list)
+{
+    struct xmlc_node *result = NULL;
+
+    for (struct extra_descr_data *desc = desc_list; desc; desc = desc->next) {
+        result = xml_append_node(
+            result,
+            xml_node("extra_desc",
+                     xml_str_attr("keywords", desc->keyword),
+                     xml_text(desc->description),
+                     NULL));
+    }
+    return result;
+}
+
+struct xmlc_node *
+xml_collect_obj_affects(struct obj_data *obj)
+{
+    struct xmlc_node *result = NULL;
+
+    for (int i = 0;i < MAX_OBJ_AFFECT; i++) {
+        if (obj->affected[i].location == 0) {
+            continue;
+        }
+        result = xml_append_node(
+            result,
+            xml_node("affect",
+                     xml_int_attr("modifier", obj->affected[i].modifier),
+                     xml_int_attr("location", obj->affected[i].location),
+                     NULL));
+    }
+    return result;
+}
+
+struct xmlc_node *
+xml_collect_tmp_affect_affects(struct tmp_obj_affect *af)
+{
+    struct xmlc_node *result = NULL;
+
+    for (int i = 0;i < MAX_OBJ_AFFECT; i++) {
+        if (af->affect_loc[i] == 0) {
+            continue;
+        }
+        result = xml_append_node(
+            result,
+            xml_int_attr(tmp_sprintf("affect_loc%d", i), af->affect_loc[i]));
+        result = xml_append_node(
+            result,
+            xml_int_attr(tmp_sprintf("affect_mod%d", i), af->affect_mod[i]));
+    }
+    return result;
+}
+
+struct xmlc_node *
+xml_collect_tmp_affects(struct tmp_obj_affect *af_head)
+{
+    struct xmlc_node *result = NULL;
+
+    for (struct tmp_obj_affect *af = af_head; af; af = af->next) {
+        result = xml_append_node(
+            result,
+            xml_node("tmpaffect",
+                     xml_int_attr("level", af->level),
+                     xml_int_attr("type", af->type),
+                     xml_int_attr("duration", af->duration),
+                     xml_int_attr("dam_mod", af->dam_mod),
+                     xml_int_attr("maxdam_mod", af->maxdam_mod),
+                     xml_int_attr("val_mod1", af->val_mod[0]),
+                     xml_int_attr("val_mod2", af->val_mod[1]),
+                     xml_int_attr("val_mod3", af->val_mod[2]),
+                     xml_int_attr("val_mod4", af->val_mod[3]),
+                     xml_int_attr("type_mod", af->type_mod),
+                     xml_int_attr("old_type", af->old_type),
+                     xml_int_attr("worn_mod", af->worn_mod),
+                     xml_int_attr("extra_mod", af->extra_mod),
+                     xml_int_attr("extra_index", af->extra_index),
+                     xml_int_attr("weight_mod", af->weight_mod),
+                     xml_splice(xml_collect_tmp_affect_affects(af)),
+                     NULL));
+    }
+    return result;
+}
+
+struct xmlc_node *
+xml_collect_obj(struct obj_data *obj)
+{
     struct obj_data *proto = obj->shared->proto;
 
-    char *s = obj->name;
-    if (s != NULL &&
-        (proto == NULL || proto->name == NULL || !streq(s, proto->name))) {
-        fprintf(ouf, "%s<name>%s</name>\n", indent, xmlEncodeTmp(s));
-    }
-
-    s = obj->aliases;
-    if (s != NULL &&
-        (proto == NULL || proto->aliases == NULL || !streq(s, proto->aliases))) {
-        fprintf(ouf, "%s<aliases>%s</aliases>\n", indent, xmlEncodeTmp(s));
-    }
-
-    s = obj->engraving;
-    if (s != NULL &&
-        (proto == NULL || proto->aliases == NULL || !streq(s, proto->aliases))) {
-        fprintf(ouf, "%s<engraving>%s</engraving>\n", indent, xmlEncodeTmp(s));
-    }
-
-    s = obj->line_desc;
-    if (s != NULL &&
-        (proto == NULL || proto->line_desc == NULL
-         || !streq(s, proto->line_desc))) {
-        fprintf(ouf, "%s<line_desc>%s</line_desc>\n", indent, xmlEncodeTmp(s));
-    }
-
-    if (!proto || obj->ex_description != proto->ex_description) {
-        struct extra_descr_data *desc;
-
-        for (desc = obj->ex_description; desc; desc = desc->next) {
-            if (desc->keyword && desc->description) {
-                fprintf(ouf, "%s<extra_desc keywords=\"%s\">%s</extra_desc>\n",
-                        indent, xmlEncodeSpecialTmp(desc->keyword),
-                        xmlEncodeTmp(desc->description));
-            }
-        }
-    }
-
-    s = obj->action_desc;
-    if (s != NULL &&
-        (proto == NULL || proto->action_desc == NULL ||
-         !streq(s, proto->action_desc))) {
-        fprintf(ouf, "%s<action_desc>%s</action_desc>\n", indent,
-                xmlEncodeTmp(tmp_gsub(tmp_gsub(s, "\r\n", "\n"), "\r", "")));
-    }
-    // Detach the list of temp affects from the object and remove them
-    // without deleting them
-    af_head = obj->tmp_affects;
-    for (af = af_head; af; af = af->next) {
+    // stash temp object affects
+    struct tmp_obj_affect *af_head = obj->tmp_affects;
+    for (struct tmp_obj_affect *af = af_head; af; af = af->next) {
         apply_object_affect(obj, af, false);
     }
 
-    fprintf(ouf,
-            "%s<points type=\"%d\" soilage=\"%d\" weight=\"%f\" material=\"%d\" timer=\"%d\"/>\n",
-            indent, obj->obj_flags.type_flag, obj->soilage,
-            GET_OBJ_WEIGHT(obj) - weigh_contained_objs(obj),
-            obj->obj_flags.material, obj->obj_flags.timer);
-    fprintf(ouf,
-            "%s<tracking id=\"%ld\" method=\"%d\" creator=\"%ld\" time=\"%ld\"/>\n",
-            indent, obj->unique_id, obj->creation_method, obj->creator,
-            obj->creation_time);
-    fprintf(ouf,
-            "%s<damage current=\"%d\" max=\"%d\" sigil_id=\"%d\" sigil_level=\"%d\" />\n",
-            indent, obj->obj_flags.damage, obj->obj_flags.max_dam,
-            obj->obj_flags.sigil_idnum, obj->obj_flags.sigil_level);
-    fprintf(ouf, "%s<flags extra=\"%x\" extra2=\"%x\" extra3=\"%x\" />\n",
-            indent, obj->obj_flags.extra_flags, obj->obj_flags.extra2_flags,
-            obj->obj_flags.extra3_flags);
-    fprintf(ouf, "%s<values v0=\"%d\" v1=\"%d\" v2=\"%d\" v3=\"%d\" />\n",
-            indent, obj->obj_flags.value[0], obj->obj_flags.value[1],
-            obj->obj_flags.value[2], obj->obj_flags.value[3]);
+    struct xmlc_node *result =
+        xml_node("object",
+                 xml_int_attr("vnum", obj->shared->vnum),
+                 xml_if(should_write_str(obj->name, proto, proto->name),
+                        xml_node("name", xml_text(obj->name), NULL)),
+                 xml_if(should_write_str(obj->aliases, proto, proto->aliases),
+                        xml_node("aliases", xml_text(obj->aliases), NULL)),
+                 xml_if(should_write_str(obj->engraving, proto, proto->engraving),
+                        xml_node("engraving", xml_text(obj->engraving), NULL)),
+                 xml_if(should_write_str(obj->line_desc, proto, proto->line_desc),
+                        xml_node("line_desc", xml_text(obj->line_desc), NULL)),
+                 xml_if(!proto || obj->ex_description != proto->ex_description,
+                        xml_splice(xml_collect_extra_descs(obj->ex_description))),
+                 xml_if(should_write_str(obj->action_desc, proto, proto->action_desc),
+                        xml_node("action_desc", xml_text(obj->action_desc), NULL)),
+                 xml_node("points",
+                          xml_int_attr("type", obj->obj_flags.type_flag),
+                          xml_int_attr("soilage", obj->soilage),
+                          xml_float_attr("weight", GET_OBJ_WEIGHT(obj) - weigh_contained_objs(obj)),
+                          xml_int_attr("material", obj->obj_flags.material),
+                          xml_int_attr("timer", obj->obj_flags.timer),
+                          NULL),
+                 xml_node("tracking",
+                          xml_int_attr("id", obj->unique_id),
+                          xml_int_attr("method", obj->creation_method),
+                          xml_int_attr("creator", obj->creator),
+                          xml_int_attr("time", obj->creation_time),
+                          NULL),
+                 xml_node("damage",
+                          xml_int_attr("current", obj->obj_flags.damage),
+                          xml_int_attr("max", obj->obj_flags.max_dam),
+                          xml_int_attr("sigil_id", obj->obj_flags.sigil_idnum),
+                          xml_int_attr("sigil_level", obj->obj_flags.sigil_level),
+                          NULL),
+                 xml_node("flags",
+                          xml_hex_attr("extra", obj->obj_flags.extra_flags),
+                          xml_hex_attr("extra2", obj->obj_flags.extra2_flags),
+                          xml_hex_attr("extra3", obj->obj_flags.extra3_flags),
+                          NULL),
+                 xml_node("values",
+                          xml_int_attr("v0", obj->obj_flags.value[0]),
+                          xml_int_attr("v1", obj->obj_flags.value[1]),
+                          xml_int_attr("v2", obj->obj_flags.value[2]),
+                          xml_int_attr("v3", obj->obj_flags.value[3]),
+                          NULL),
+                 xml_node("affectbits",
+                          xml_hex_attr("aff1", obj->obj_flags.bitvector[0]),
+                          xml_hex_attr("aff2", obj->obj_flags.bitvector[1]),
+                          xml_hex_attr("aff3", obj->obj_flags.bitvector[2]),
+                          NULL),
+                 xml_if(obj->consignor,
+                        xml_node("consignment",
+                                 xml_int_attr("consignor", obj->consignor),
+                                 xml_int_attr("price", obj->consign_price),
+                                 NULL)),
+                 xml_splice(xml_collect_obj_affects(obj)),
+                 xml_splice(xml_collect_tmp_affects(af_head)),
 
-    fprintf(ouf, "%s<affectbits aff1=\"%lx\" aff2=\"%lx\" aff3=\"%lx\" />\n",
-            indent, obj->obj_flags.bitvector[0],
-            obj->obj_flags.bitvector[1], obj->obj_flags.bitvector[2]);
+                 xml_splice(xml_collect_obj_list(obj->contains)),
 
-    if (obj->consignor) {
-        fprintf(ouf, "%s<consignment consignor=\"%ld\" price=\"%" PRId64 "\" />\n",
-                indent, obj->consignor, obj->consign_price);
-    }
-
-    for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
-        if (obj->affected[i].location > 0) {
-            fprintf(ouf, "%s<affect modifier=\"%d\" location=\"%d\" />\n",
-                    indent, obj->affected[i].modifier, obj->affected[i].location);
-        }
-    }
-    // Write the temp affects out to the file
-    for (af = af_head; af; af = af->next) {
-        fprintf(ouf, "%s<tmpaffect level=\"%d\" type=\"%d\" duration=\"%d\" "
-                     "dam_mod=\"%d\" maxdam_mod=\"%d\" val_mod1=\"%d\" "
-                     "val_mod2=\"%d\" val_mod3=\"%d\" val_mod4=\"%d\" "
-                     "type_mod=\"%d\" old_type=\"%d\" worn_mod=\"%d\" "
-                     "extra_mod=\"%d\" extra_index=\"%d\" weight_mod=\"%f\" ",
-                indent, af->level, af->type, af->duration,
-                af->dam_mod, af->maxdam_mod, af->val_mod[0], af->val_mod[1],
-                af->val_mod[2], af->val_mod[3], af->type_mod, af->old_type,
-                af->worn_mod, af->extra_mod, af->extra_index, af->weight_mod);
-
-        for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
-            fprintf(ouf, "affect_loc%d=\"%d\" affect_mod%d=\"%d\" ",
-                    i, af->affect_loc[i], i, af->affect_mod[i]);
-        }
-
-        fprintf(ouf, "/>\n");
-    }
-    // Contained objects
-    for (struct obj_data *obj2 = obj->contains; obj2 != NULL;
-         obj2 = obj2->next_content) {
-        save_object_to_xml(obj2, ouf);
-    }
-    // Intentionally done last since reading obj property in loadFromXML
-    // causes the eq to be worn on the character.
-    fprintf(ouf, "%s<worn possible=\"%x\" pos=\"%d\" type=\"%s\"/>\n",
-            indent, obj->obj_flags.wear_flags, obj->worn_on, get_worn_type(obj));
+                 // Intentionally done last since reading obj property in loadFromXML
+                 // causes the eq to be worn on the character.
+                 xml_node("worn",
+                          xml_hex_attr("possible", obj->obj_flags.wear_flags),
+                          xml_int_attr("pos", obj->worn_on),
+                          xml_str_attr("type", get_worn_type(obj)),
+                          NULL),
+                 NULL);
 
     // Ok, we'll restore the affects to the object right here
     obj->tmp_affects = af_head;
-    for (af = af_head; af; af = af->next) {
+    for (struct tmp_obj_affect *af = af_head; af; af = af->next) {
         apply_object_affect(obj, af, true);
     }
 
-    indent[strlen(indent) - 2] = '\0';
-    fprintf(ouf, "%s</object>\n", indent);
+    return result;
 }
+
+struct xmlc_node *
+xml_collect_obj_list(struct obj_data *obj_list)
+{
+    if (obj_list == NULL) {
+        return NULL;
+    }
+
+    struct xmlc_node *result = xml_collect_obj(obj_list);
+    struct xmlc_node *last_obj = result;
+
+    for (obj_list = obj_list->next_content;obj_list;obj_list = obj_list->next_content) {
+        last_obj->next = xml_collect_obj(obj_list);
+        last_obj = last_obj->next;
+    }
+    return result;
+}
+
+
+struct xmlc_node *
+xml_collect_obj_glist(GList *obj_list)
+{
+    if (obj_list == NULL) {
+        return NULL;
+    }
+
+    struct xmlc_node *result = xml_collect_obj((struct obj_data *)obj_list->data);
+    struct xmlc_node *last_obj = result;
+
+    for (obj_list = obj_list->next;obj_list;obj_list = obj_list->next) {
+        last_obj->next = xml_collect_obj((struct obj_data *)obj_list->data);
+        last_obj = last_obj->next;
+    }
+    return result;
+}
+
+void
+write_corpse_file(struct obj_data *corpse)
+{
+    xml_output(get_corpse_file_path(CORPSE_IDNUM(corpse)),
+               xml_node("corpse",
+                        xml_splice(xml_collect_obj(corpse)),
+                        NULL));
+}
+
+
 const char *
 obj_cond(struct obj_data *obj)
 {

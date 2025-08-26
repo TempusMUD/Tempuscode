@@ -4,6 +4,7 @@
 #include "obj_data.h"
 #include "room_data.h"
 #include "creature.h"
+#include "xmlc.h"
 
 const char *AUC_FILE_PATH = "etc/auctions.xml";
 
@@ -309,6 +310,49 @@ load_auctions()
     }
 }
 
+static struct xmlc_node *
+xml_collect_auc_bids(GList *bids)
+{
+    struct xmlc_node *result;
+
+    for (GList *it = bids; it; it = it->next) {
+        struct bid_data *bid = it->data;
+
+        result = xml_append_node(
+            result,
+            xml_node("bid",
+                     xml_int_attr("bidder", bid->bidder_id),
+                     xml_int_attr("past_amount", bid->past_amount),
+                     xml_int_attr("future_amount", bid->future_amount),
+                     NULL));
+    }
+
+    return result;
+}
+
+static struct xmlc_node *
+xml_collect_itemdata(GList *itemdata)
+{
+    struct xmlc_node *result;
+
+    for (GList *ai = auctions; ai; ai = ai->next) {
+        struct auction_data *auc = ai->data;
+
+        result = xml_append_node(
+            result,
+            xml_node("item_data",
+                     xml_int_attr("id", auc->idnum),
+                     xml_int_attr("room_id", auc->room_id),
+                     xml_int_attr("owner_id", auc->owner_id),
+                     xml_int_attr("start_bid", auc->start_bid),
+                     xml_collect_obj(auc->item),
+                     xml_splice(xml_collect_auc_bids(auc->bids)),
+                     NULL));
+    }
+
+    return result;
+}
+
 /**
  * save_auctions
  *
@@ -326,31 +370,19 @@ save_auctions(void)
         return;
     }
 
-    fprintf(ouf, "<?xml version=\"1.0\"?>\n");
-    fprintf(ouf, "<auctioneer going_once=\"%d\" going_twice=\"%d\" "
-                 "sold_time=\"%d\" nobid_thresh=\"%d\" auction_thresh=\"%d\" "
-                 "max_auc_value=\"%d\" max_auctions=\"%d\" "
-                 "max_total_auc=\"%d\" bid_increment=\"%f\">\n", GOING_ONCE,
-            GOING_TWICE, SOLD_TIME, NO_BID_THRESH, AUCTION_THRESH,
-            MAX_AUC_VALUE, MAX_AUCTIONS, MAX_TOTAL_AUC, BID_INCREMENT);
-
-    for (GList *ai = auctions; ai; ai = ai->next) {
-        struct auction_data *auc = ai->data;
-
-        fprintf(ouf, "<itemdata id=\"%" PRIu32 "\" room_id=\"%ld\" owner_id=\"%ld\" start_bid=\"%" PRId64 "\">\n",
-                auc->idnum, auc->room_id, auc->owner_id, auc->start_bid);
-        save_object_to_xml(auc->item, ouf);
-        for (GList *it = auc->bids; it; it = it->next) {
-            struct bid_data *bid = it->data;
-            fprintf(ouf, "  <bid bidder=\"%ld\"  past_amount=\"%" PRId64 "\" future_amount=\"%" PRId64 "\"/>\n",
-                    bid->bidder_id,
-                    bid->past_amount,
-                    bid->future_amount);
-        }
-        fprintf(ouf, "</itemdata>\n");
-    }
-    fprintf(ouf, "</auctioneer>");
-    fclose(ouf);
+    xml_output(AUC_FILE_PATH,
+               xml_node("auctioneer",
+                        xml_int_attr("going_once", GOING_ONCE),
+                        xml_int_attr("going_twice", GOING_TWICE),
+                        xml_int_attr("sold_time", SOLD_TIME),
+                        xml_int_attr("nobid_thresh", NO_BID_THRESH),
+                        xml_int_attr("auction_thresh", AUCTION_THRESH),
+                        xml_int_attr("max_auc_value", MAX_AUC_VALUE),
+                        xml_int_attr("max_auctions", MAX_AUCTIONS),
+                        xml_int_attr("max_total_auc", MAX_TOTAL_AUC),
+                        xml_int_attr("bid_increment", BID_INCREMENT),
+                        xml_collect_itemdata(auctions),
+                        NULL));
 }
 
 /**

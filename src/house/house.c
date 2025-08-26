@@ -35,6 +35,7 @@
 #include "obj_data.h"
 #include "mail.h"
 #include "strutil.h"
+#include "xmlc.h"
 
 // usage message
 #define HCONTROL_FIND_FORMAT \
@@ -546,47 +547,72 @@ count_housed_objects(struct house *house, gpointer ignore __attribute__((unused)
     return count;
 }
 
-bool
-save_house(struct house *house)
+static struct xmlc_node *
+xml_collect_house_rooms(struct house *house)
 {
-    char *path = get_house_file_path(house->id);
-    FILE *ouf = fopen(path, "w");
-
-    if (!ouf) {
-        fprintf(stderr, "Unable to open XML house file for save.[%s] (%s)\n",
-                path, strerror(errno));
-        return false;
-    }
-    fprintf(ouf, "<housefile>\n");
-    fprintf(ouf, "<house id=\"%d\" type=\"%s\" owner=\"%d\" created=\"%ld\"",
-            house->id,
-            house_type_name(house->type), house->owner_id, house->created);
-    fprintf(ouf, " landlord=\"%ld\" rate=\"%d\" overflow=\"%ld\" >\n",
-            house->landlord, house->rental_rate, house->rent_overflow);
+    struct xmlc_node *result = NULL;
     for (GList *i = house->rooms; i; i = i->next) {
         struct room_data *room = real_room(GPOINTER_TO_INT(i->data));
         if (!room) {
             continue;
         }
-        fprintf(ouf, "    <room number=\"%d\">\n", GPOINTER_TO_INT(i->data));
-        for (struct obj_data *obj = room->contents; obj != NULL;
-             obj = obj->next_content) {
-            save_object_to_xml(obj, ouf);
-        }
-        fprintf(ouf, "    </room>\n");
+        result = xml_append_node(
+            result,
+            xml_node("room",
+                     xml_int_attr("number", room->number),
+                     xml_splice(xml_collect_obj_list(room->contents)),
+                     NULL));
         REMOVE_BIT(ROOM_FLAGS(room), ROOM_HOUSE_CRASH);
     }
-    for (GList *i = house->guests; i; i = i->next) {
-        fprintf(ouf, "    <guest id=\"%d\"></guest>\n",
-                GPOINTER_TO_INT(i->data));
+    return result;
+}
+
+static struct xmlc_node *
+xml_collect_house_guests(struct house *house)
+{
+    struct xmlc_node *result = NULL;
+    for (GList *i = house->rooms; i; i = i->next) {
+        result = xml_append_node(
+            result,
+            xml_node("guest",
+                     xml_int_attr("id", GPOINTER_TO_INT(i->data)),
+                     NULL));
     }
+    return result;
+}
+
+static struct xmlc_node *
+xml_collect_house_notes(struct house *house)
+{
+    struct xmlc_node *result = NULL;
     for (struct txt_block *i = house->repo_notes; i; i = i->next) {
-        fprintf(ouf, "    <repossession note=\"%s\"></repossession>\n",
-                xmlEncodeSpecialTmp(i->text));
+        result = xml_append_node(
+            result,
+            xml_node("repossession",
+                     xml_str_attr("note", i->text),
+                     NULL));
     }
-    fprintf(ouf, "</house>");
-    fprintf(ouf, "</housefile>\n");
-    fclose(ouf);
+    return result;
+}
+
+bool
+save_house(struct house *house)
+{
+    xml_output(get_house_file_path(house->id),
+               xml_node("housefile",
+                        xml_node("house",
+                                 xml_int_attr("id", house->id),
+                                 xml_str_attr("type", house_type_name(house->type)),
+                                 xml_int_attr("owner", house->owner_id),
+                                 xml_int_attr("created", house->created),
+                                 xml_int_attr("landlord", house->landlord),
+                                 xml_int_attr("rate", house->rental_rate),
+                                 xml_int_attr("overflow", house->rent_overflow),
+                                 xml_splice(xml_collect_house_rooms(house)),
+                                 xml_splice(xml_collect_house_guests(house)),
+                                 xml_splice(xml_collect_house_notes(house)),
+                                 NULL),
+                        NULL));
 
     return true;
 }

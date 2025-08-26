@@ -2766,19 +2766,7 @@ ACMD(do_extract)
 
         // Remove the implant from the corpse file
         if (IS_CORPSE(corpse) && CORPSE_IDNUM(corpse) > 0) {
-            char *fname;
-            FILE *corpse_file;
-
-            fname = get_corpse_file_path(CORPSE_IDNUM(corpse));
-            if ((corpse_file = fopen(fname, "w+")) != NULL) {
-                fprintf(corpse_file, "<corpse>");
-                save_object_to_xml(corpse, corpse_file);
-                fprintf(corpse_file, "</corpse>");
-                fclose(corpse_file);
-            } else {
-                errlog("Failed to open corpse file [%s] (%s)", fname,
-                       strerror(errno));
-            }
+            write_corpse_file(corpse);
         }
 
         act("You carefully extract $p from $P.", false, ch, obj, corpse,

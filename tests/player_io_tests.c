@@ -34,6 +34,7 @@
 #include "editor.h"
 #include "testing.h"
 #include "spells.h"
+#include "xmlc.h"
 
 static struct creature *ch = NULL;
 
@@ -446,7 +447,6 @@ START_TEST(test_load_save_objects_affected)
 
     int vnum = make_random_object();
     struct obj_data *obj_a = read_object(vnum);
-    FILE *ouf;
     struct tmp_obj_affect aff;
     float orig_weight = GET_OBJ_WEIGHT(obj_a);
 
@@ -463,15 +463,10 @@ START_TEST(test_load_save_objects_affected)
 
     ck_assert_int_eq(GET_OBJ_WEIGHT(obj_a), orig_weight + 5);
 
-    ouf = fopen(test_path("test_items.xml"), "w");
-    if (!ouf) {
-        ck_abort_msg("Couldn't open file to save object");
-        return;
-    }
-    fprintf(ouf, "<objects>\n");
-    save_object_to_xml(obj_a, ouf);
-    fprintf(ouf, "</objects>\n");
-    fclose(ouf);
+    xml_output(test_path("test_items.xml"),
+               xml_node("objects",
+                        xml_splice(xml_collect_obj(obj_a)),
+                        NULL));
 
     ck_assert_int_eq(GET_OBJ_WEIGHT(obj_a), orig_weight + 5);
 

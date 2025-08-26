@@ -1446,19 +1446,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
     } else {
         obj_to_room(corpse, ch->in_room);
         if (CORPSE_IDNUM(corpse) > 0 && !is_arena_combat(killer, ch)) {
-            FILE *corpse_file;
-            char *fname;
-
-            fname = get_corpse_file_path(CORPSE_IDNUM(corpse));
-            if ((corpse_file = fopen(fname, "w+")) != NULL) {
-                fprintf(corpse_file, "<corpse>");
-                save_object_to_xml(corpse, corpse_file);
-                fprintf(corpse_file, "</corpse>");
-                fclose(corpse_file);
-            } else {
-                errlog("Failed to open corpse file [%s] (%s)", fname,
-                       strerror(errno));
-            }
+            write_corpse_file(corpse);
         }
     }
 

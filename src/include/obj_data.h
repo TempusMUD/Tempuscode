@@ -396,8 +396,11 @@ OEXIT(struct obj_data *obj, int dir)
 }
 struct obj_data *make_object(void);
 void free_object(struct obj_data *obj);
-void save_object_to_xml(struct obj_data *obj, FILE *outf);
+struct xmlc_node *xml_collect_obj(struct obj_data *obj);
+struct xmlc_node *xml_collect_obj_list(struct obj_data *obj_list);
+struct xmlc_node *xml_collect_obj_glist(GList *obj_list);
 struct obj_data *load_object_from_xml(struct obj_data *container, struct creature *victim, struct room_data *room, xmlNodePtr node);
+void write_corpse_file(struct obj_data *corpse);
 int count_contained_objs(struct obj_data *obj);
 float weigh_contained_objs(struct obj_data *obj);
 struct obj_affected_type *obj_affected_by_spell(struct obj_data *object, int spell);

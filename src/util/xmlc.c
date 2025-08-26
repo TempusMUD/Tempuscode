@@ -24,9 +24,63 @@ xml_null_node(void)
 {
     struct xmlc_node *result;
     result = tmp_alloc(sizeof(struct xmlc_node));
+    memset(result, 0, sizeof(struct xmlc_node));
     result->kind = XMLC_NULL;
 
     return result;
+}
+
+struct xmlc_node *
+xml_append_node(struct xmlc_node *head, struct xmlc_node *node)
+{
+    node->next = NULL;
+    if (!head) {
+        return node;
+    }
+
+    // This is inefficient, hopefully not too much so with small
+    // numbers of children.  It can be easily sped up by caching
+    // last_child in the parent node, but then it must be kept
+    // up-to-date...
+    struct xmlc_node *insert = head;
+    while (insert->next) {
+        insert = insert->next;
+    }
+    insert->next = node;
+    return head;
+}
+
+void
+reduce_node(struct xmlc_node *dest, struct xmlc_node *node)
+{
+    struct xmlc_node *subnode;
+
+    dest->next = NULL;
+
+    switch (node->kind) {
+    case XMLC_NULL:
+        // false xml_if condition -- ignore.
+        break;
+    case XMLC_ATTR:
+        // add to attrs
+        dest->attrs = xml_append_node(dest->attrs, node);
+        break;
+    case XMLC_NODE:
+        // append to children
+        dest->children = xml_append_node(dest->children, node);
+        break;
+    case XMLC_SPLICE:
+        // splice children of splice node to this node.
+        struct xmlc_node *next_node;
+        for (subnode = node->children;subnode;subnode = next_node) {
+            next_node = subnode->next;
+            reduce_node(dest, subnode);
+        }
+        break;
+    case XMLC_TEXT:
+        dest->text = node->text;
+        break;
+    }
 }
 
 struct xmlc_node *
@@ -34,55 +88,15 @@ xml_node(const char *tag, ...)
 {
     va_list args;
     struct xmlc_node *result;
-    struct xmlc_node *last_attr = NULL;
-    struct xmlc_node *last_child = NULL;
 
-    result = tmp_alloc(sizeof(struct xmlc_node));
+    result = xml_null_node();
     result->kind = XMLC_NODE;
     result->tag = tag;
 
     va_start(args, tag);
     struct xmlc_node *sn;
     while ((sn = va_arg(args, struct xmlc_node *)) != NULL) {
-        switch (sn->kind) {
-        case XMLC_NULL:
-            // false xml_if condition -- ignore.
-            break;
-        case XMLC_ATTR:
-            // add to attrs
-            if (last_attr) {
-                last_attr->next = sn;
-                last_attr = sn;
-            } else {
-                result->attrs = last_attr = sn;
-            }
-            break;
-        case XMLC_NODE:
-            // append to children
-            if (last_child) {
-                last_child->next = sn;
-                last_child = sn;
-            } else {
-                result->children = last_child = sn;
-            }
-            break;
-        case XMLC_SPLICE:
-            // splice children of node to children
-            if (last_child) {
-                last_child->next = sn->children;
-            } else {
-                result->children = last_child = sn->children;
-            }
-            // advance to last child
-            while (last_child->next != NULL) {
-                last_child = last_child->next;
-            }
-            break;
-        case XMLC_TEXT:
-            result->text = sn->text;
-            break;
-        }
-
+        reduce_node(result, sn);
     }
     va_end(args);
 
@@ -93,7 +107,7 @@ struct xmlc_node *
 xml_int_attr(const char *attr, int val)
 {
     struct xmlc_node *result;
-    result = tmp_alloc(sizeof(struct xmlc_node));
+    result = xml_null_node();
     result->kind = XMLC_ATTR;
     result->tag = attr;
     result->val = tmp_sprintf("%d", val);
@@ -104,7 +118,7 @@ struct xmlc_node *
 xml_hex_attr(const char *attr, int val)
 {
     struct xmlc_node *result;
-    result = tmp_alloc(sizeof(struct xmlc_node));
+    result = xml_null_node();
     result->kind = XMLC_ATTR;
     result->tag = attr;
     result->val = tmp_sprintf("%x", val);
@@ -115,7 +129,7 @@ struct xmlc_node *
 xml_float_attr(const char *attr, float val)
 {
     struct xmlc_node *result;
-    result = tmp_alloc(sizeof(struct xmlc_node));
+    result = xml_null_node();
     result->kind = XMLC_ATTR;
     result->tag = attr;
     result->val = tmp_sprintf("%f", val);
@@ -127,7 +141,7 @@ xml_str_attr(const char *attr, const char *val)
 {
     struct xmlc_node *result;
 
-    result = tmp_alloc(sizeof(struct xmlc_node));
+    result = xml_null_node();
     result->kind = XMLC_ATTR;
     result->tag = attr;
     result->val = val;
@@ -139,7 +153,7 @@ xml_bool_attr(const char *attr, bool val)
 {
     struct xmlc_node *result;
 
-    result = tmp_alloc(sizeof(struct xmlc_node));
+    result = xml_null_node();
     result->kind = XMLC_ATTR;
     result->tag = attr;
     result->val = val ? "yes":"no";
@@ -154,7 +168,7 @@ xml_text(const char *text)
     }
 
     struct xmlc_node *result;
-    result = tmp_alloc(sizeof(struct xmlc_node));
+    result = xml_null_node();
     result->kind = XMLC_TEXT;
     result->text = tmp_gsub(text, "\r", "");
     return result;
@@ -174,7 +188,7 @@ xml_splice(struct xmlc_node *node)
 {
     struct xmlc_node *result;
 
-    result = tmp_alloc(sizeof(struct xmlc_node));
+    result = xml_null_node();
     result->kind = XMLC_SPLICE;
     result->children = node;
     return result;

@@ -34,6 +34,7 @@
 #include "actions.h"
 #include "language.h"
 #include "strutil.h"
+#include "tmpstr.h"
 
 void add_alias(struct creature *ch, struct alias_data *a);
 void affect_to_char(struct creature *ch, struct affected_type *af);
@@ -246,46 +247,34 @@ display_unrentables(struct creature *ch)
     return result;
 }
 
+struct xmlc_node *
+xml_collect_eq(struct creature *ch)
+{
+#define XML_OBJ_COLLECT(result, last_obj, obj) do { if (obj) { struct xmlc_node *node = xml_collect_obj(obj); if (last_obj) { last_obj->next = node; last_obj = last_obj->next; } else { result = last_obj = node; }}} while (0)
+
+    struct xmlc_node *result = NULL;
+    struct xmlc_node *last_obj = NULL;
+
+    for (int i = 0;i < NUM_WEARS;i++) {
+        XML_OBJ_COLLECT(result, last_obj, GET_EQ(ch, i));
+        XML_OBJ_COLLECT(result, last_obj, GET_IMPLANT(ch, i));
+        XML_OBJ_COLLECT(result, last_obj, GET_TATTOO(ch, i));
+    }
+    return result;
+
+}
+
 bool
 save_player_objects_to_file(struct creature *ch, const char *path)
 {
-    FILE *ouf;
-    char *tmp_path;
-    int idx;
+    struct xmlc_node *xml_collect_obj_list(struct obj_data *obj_list);
 
-    tmp_path = tmp_sprintf("%s.new", path);
-    ouf = fopen(tmp_path, "w");
-
-    if (!ouf) {
-        fprintf(stderr,
-                "Unable to open XML equipment file for save.[%s] (%s)\n", path,
-                strerror(errno));
-        return false;
-    }
-    fprintf(ouf, "<objects>\n");
-    // Save the inventory
-    for (struct obj_data *obj = ch->carrying; obj != NULL;
-         obj = obj->next_content) {
-        save_object_to_xml(obj, ouf);
-    }
-    // Save the equipment
-    for (idx = 0; idx < NUM_WEARS; idx++) {
-        if (GET_EQ(ch, idx)) {
-            save_object_to_xml(GET_EQ(ch, idx), ouf);
-        }
-        if (GET_IMPLANT(ch, idx)) {
-            save_object_to_xml(GET_IMPLANT(ch, idx), ouf);
-        }
-        if (GET_TATTOO(ch, idx)) {
-            save_object_to_xml(GET_TATTOO(ch, idx), ouf);
-        }
-    }
-    fprintf(ouf, "</objects>\n");
-    fclose(ouf);
-
-    // on success, move the new object file onto the old one
-    rename(tmp_path, path);
-
+    // Test replacement.
+    xml_output(path,
+               xml_node("objects",
+                        xml_splice(xml_collect_obj_list(ch->carrying)),
+                        xml_splice(xml_collect_eq(ch)),
+                        NULL));
     return true;
 }
 

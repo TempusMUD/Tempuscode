@@ -684,21 +684,8 @@ perform_get_from_container(struct creature *ch,
                    obj->name, cont->name);
         }
         // Also resave corpse file at this point
-        if (IS_CORPSE(cont) && CORPSE_IDNUM(cont) > 0 &&
-            player_idnum_exists(CORPSE_IDNUM(cont))) {
-            char *fname;
-            FILE *corpse_file;
-
-            fname = get_corpse_file_path(CORPSE_IDNUM(cont));
-            if ((corpse_file = fopen(fname, "w+")) != NULL) {
-                fprintf(corpse_file, "<corpse>");
-                save_object_to_xml(cont, corpse_file);
-                fprintf(corpse_file, "</corpse>");
-                fclose(corpse_file);
-            } else {
-                errlog("Failed to open corpse file [%s] (%s)", fname,
-                       strerror(errno));
-            }
+        if (IS_CORPSE(cont) && CORPSE_IDNUM(cont) > 0 && player_idnum_exists(CORPSE_IDNUM(cont))) {
+            write_corpse_file(cont);
         }
     }
 

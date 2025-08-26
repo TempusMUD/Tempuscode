@@ -11,6 +11,7 @@ struct xmlc_node {
 struct xmlc_node *xml_node(const char *tag, ...)
     __attribute__((sentinel));
 struct xmlc_node *xml_null_node();
+struct xmlc_node *xml_append_node(struct xmlc_node *head, struct xmlc_node *node);
 struct xmlc_node *xml_int_attr(const char *attr, int val);
 struct xmlc_node *xml_hex_attr(const char *attr, int val);
 struct xmlc_node *xml_float_attr(const char *attr, float val);

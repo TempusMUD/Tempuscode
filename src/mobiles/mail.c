@@ -55,6 +55,7 @@
 #include "mail.h"
 #include "editor.h"
 #include "strutil.h"
+#include "xmlc.h"
 
 // From cityguard.cc
 void call_for_help(struct creature *ch, struct creature *attacker);
@@ -197,25 +198,18 @@ store_mail(const char *from_name, long to_id, const char *txt, GList *cc_list,
         errlog("Unable to open xml mail file '%s': %s",
                mail_file_path, strerror(errno));
         return false;
-    } else {
-        GList *oi;
+    }
 
-        fprintf(ofile, "<objects>");
-        for (oi = mailBag; oi; oi = oi->next) {
-            obj = (struct obj_data *)oi->data;
-            save_object_to_xml(obj, ofile);
-            extract_obj(obj);
-        }
-        if (obj_list) {
-            temp_o = obj_list;
-            while (temp_o) {
-                save_object_to_xml(temp_o, ofile);
-                extract_obj(temp_o);
-                temp_o = temp_o->next_content;
-            }
-        }
-        fprintf(ofile, "</objects>");
-        fclose(ofile);
+    xml_output(mail_file_path,
+               xml_node("objects",
+                        xml_splice(xml_collect_obj_glist(mailBag)),
+                        xml_splice(xml_collect_obj_list(obj_list)),
+                        NULL));
+
+    struct obj_data *next_obj;
+    for (struct obj_data *obj = obj_list;obj;obj = next_obj) {
+        next_obj = obj->next_content;
+        extract_obj(obj);
     }
 
     return true;
