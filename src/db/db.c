@@ -90,7 +90,7 @@ GHashTable *creature_map = NULL;
 
 struct zone_data *zone_table;   /* zone table                         */
 int top_of_zone_table = 0;      /* top element of zone tab         */
-struct message_list fight_messages[MAX_MESSAGES];   /* fighting messages  */
+struct message_list fight_messages[MAX_MESSAGES] = { 0 };   /* fighting messages  */
 extern struct help_collection *Help;
 
 int no_plrtext = 0;             /* player text disabled?         */
@@ -269,11 +269,14 @@ ACMD(do_reboot)
         boot_social_messages();
     } else if (!strcasecmp(arg, "spells")) {
         boot_spells("etc/spells.xml");
+    } else if (!strcasecmp(arg, "messages")) {
+        load_messages();
     } else {
         send_to_char(ch, "Unknown reboot option.\r\n");
         send_to_char(ch, "Options: all    *         credits     greeting     info\r\n");
         send_to_char(ch, "         areas  olc_guide quest_guide handbook     background\r\n");
         send_to_char(ch, "         paths  trails    timewarps   spells       socials\r\n");
+        send_to_char(ch, "         messages\r\n");
         return;
     }
     send_to_char(ch, "%s", OK);

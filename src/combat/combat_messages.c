@@ -129,11 +129,6 @@ load_messages(void)
         perror(tmp_sprintf("Error opening combat message file %s", MESS_FILE));
         safe_exit(1);
     }
-    for (int i = 0; i < MAX_MESSAGES; i++) {
-        fight_messages[i].a_type = 0;
-        fight_messages[i].number_of_attacks = 0;
-    }
-
     if (!fgets(line, 128, fl)) {
         perror(tmp_sprintf
                    ("Error reading first line from combat message file %s",
@@ -147,6 +142,27 @@ load_messages(void)
             safe_exit(1);
         }
     }
+    // free any previously held memory
+    for (int type = 0;type < MAX_MESSAGES;type++) {
+        for (int msg = 0;msg < fight_messages[type].number_of_attacks;msg++) {
+            struct message_type *message = &fight_messages[type].msg[msg];
+            free(message->die_msg.attacker_msg);
+            free(message->die_msg.victim_msg);
+            free(message->die_msg.room_msg);
+            free(message->miss_msg.attacker_msg);
+            free(message->miss_msg.victim_msg);
+            free(message->miss_msg.room_msg);
+            free(message->hit_msg.attacker_msg);
+            free(message->hit_msg.victim_msg);
+            free(message->hit_msg.room_msg);
+            free(message->god_msg.attacker_msg);
+            free(message->god_msg.victim_msg);
+            free(message->god_msg.room_msg);
+        }
+    }
+
+    // zero out entire list
+    memset(fight_messages, 0, sizeof(fight_messages));
 
     while (*line == 'M') {
         if (!fgets(line, 128, fl)) {
