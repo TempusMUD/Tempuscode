@@ -787,11 +787,11 @@ load_object_from_xml(struct obj_data *container,
     return obj;
 }
 
-static bool
-should_write_str(const char *str, struct obj_data *proto, const char *proto_str)
-{
-    return str && (proto == NULL || proto_str == NULL || !streq(str, proto_str));
-}
+// SHOULD_WRITE_STR is a macro which returns whether or not str
+// differs from its prototype's string, assuming that str is non-null,
+// the prototype exists, and the prototype's string exists.  Defined
+// as a macro since proto_str must not be evaluated if proto is null.
+#define SHOULD_WRITE_STR(str, proto, proto_str) ((str) && ((proto) == NULL || (proto_str) == NULL || !streq((str), (proto_str))))
 
 struct xmlc_node *xml_collect_obj_list(struct obj_data *obj_list);
 
@@ -893,17 +893,17 @@ xml_collect_obj(struct obj_data *obj)
     struct xmlc_node *result =
         xml_node("object",
                  xml_int_attr("vnum", obj->shared->vnum),
-                 xml_if(should_write_str(obj->name, proto, proto->name),
+                 xml_if(SHOULD_WRITE_STR(obj->name, proto, proto->name),
                         xml_node("name", xml_text(obj->name), NULL)),
-                 xml_if(should_write_str(obj->aliases, proto, proto->aliases),
+                 xml_if(SHOULD_WRITE_STR(obj->aliases, proto, proto->aliases),
                         xml_node("aliases", xml_text(obj->aliases), NULL)),
-                 xml_if(should_write_str(obj->engraving, proto, proto->engraving),
+                 xml_if(SHOULD_WRITE_STR(obj->engraving, proto, proto->engraving),
                         xml_node("engraving", xml_text(obj->engraving), NULL)),
-                 xml_if(should_write_str(obj->line_desc, proto, proto->line_desc),
+                 xml_if(SHOULD_WRITE_STR(obj->line_desc, proto, proto->line_desc),
                         xml_node("line_desc", xml_text(obj->line_desc), NULL)),
                  xml_if(!proto || obj->ex_description != proto->ex_description,
                         xml_splice(xml_collect_extra_descs(obj->ex_description))),
-                 xml_if(should_write_str(obj->action_desc, proto, proto->action_desc),
+                 xml_if(SHOULD_WRITE_STR(obj->action_desc, proto, proto->action_desc),
                         xml_node("action_desc", xml_text(obj->action_desc), NULL)),
                  xml_node("points",
                           xml_int_attr("type", obj->obj_flags.type_flag),
