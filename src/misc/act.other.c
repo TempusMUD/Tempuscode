@@ -1579,7 +1579,7 @@ ACMD(do_compare)
         if (avg1 == avg2) {
             send_to_char(ch, "They both look equally tasty.\r\n");
         } else {
-            send_to_char(ch, "%s looks more filling that the other.\r\n",
+            send_to_char(ch, "%s looks more filling than the other.\r\n",
                          avg1 >= avg2 ? item1->name : item2->name);
         }
         break;

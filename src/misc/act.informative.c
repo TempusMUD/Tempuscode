@@ -3931,137 +3931,143 @@ obj_in_house(struct obj_data *obj)
 }
 
 void
-perform_immort_where(struct creature *ch, char *arg, bool show_morts)
+perform_immort_playerlist(struct creature *ch)
 {
-    register struct obj_data *k;
-    struct descriptor_data *d;
-    int num = 0, found = 0;
-    bool house_only, no_house, no_mob, no_object;
-    GList *required = NULL, *excluded = NULL;
-    char *arg1;
-
-    house_only = no_house = no_mob = no_object = false;
-
     struct str_builder sb = str_builder_default;
+    bool show_morts = is_authorized(ch, FULL_IMMORT_WHERE, NULL);
+
+    sb_strcat(&sb,  "Players\r\n-------\r\n", NULL);
+
+    for (GList *it = first_living(creatures); it; it = next_living(it)) {
+        struct creature *form = it->data;
+        struct creature *player = (form->desc && form->desc->original) ? form->desc->original : form;
+
+        if (IS_NPC(player) || !player->in_room || !(show_morts || IS_IMMORT(player))) {
+            continue;
+        }
+
+        struct str_builder notes = str_builder_default;
+
+        if (player != form) {
+            sb_sprintf(&notes, "%s (in %s)", CCGRN(ch, C_CMP), GET_NAME(form));
+        }
+        if (ROOM_FLAGGED(form->in_room, ROOM_HOUSE)) {
+            sb_sprintf(&notes, "%s (house)", CCMAG(ch, C_CMP));
+        }
+        if (ROOM_FLAGGED(form->in_room, ROOM_ARENA)) {
+            sb_sprintf(&notes, "%s (arena)", CCYEL(ch, C_CMP));
+        }
+        if (!IS_APPR(form->in_room->zone)) {
+            sb_sprintf(&notes, "%s (!appr)", CCRED(ch, C_CMP));
+        }
+        if (ROOM_FLAGGED(form->in_room, ROOM_CLAN_HOUSE)) {
+            sb_sprintf(&notes, "%s (clan)", CCCYN(ch, C_CMP));
+        }
+        if (!player->desc) {
+            sb_sprintf(&notes, "%s (linkless)", CCCYN(ch, C_CMP));
+        }
+        sb_sprintf(&sb,  "%s%-20s%s - %s[%s%5d%s]%s %s%s%s%s\r\n",
+                   (GET_LEVEL(player) >= LVL_AMBASSADOR ? CCGRN(ch, C_NRM) : ""),
+                   GET_NAME(player),
+                   (GET_LEVEL(player) >= LVL_AMBASSADOR ? CCNRM(ch, C_NRM) : ""),
+                   CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+                   form->in_room->number,
+                   CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+                   CCCYN(ch, C_NRM), form->in_room->name,
+                   notes.str, CCNRM(ch, C_NRM));
+    }
+
+    page_string(ch->desc, sb.str);
+}
+
+void
+perform_immort_where(struct creature *ch, char *arg)
+{
+    bool found, house_only, no_house, no_mob, no_object;
+    GList *required = NULL, *excluded = NULL;
+    struct str_builder sb = str_builder_default;
+
+    found = house_only = no_house = no_mob = no_object = false;
+
     skip_spaces(&arg);
-    if (!*arg || !show_morts) {
-        sb_strcat(&sb,  "Players\r\n-------\r\n", NULL);
-        for (d = descriptor_list; d; d = d->next) {
-            if (STATE(d) != CXN_PLAYING) {
+    for (char *arg1 = tmp_getword(&arg); *arg1; arg1 = tmp_getword(&arg)) {
+        if (arg1[0] == '!') {
+            excluded = g_list_prepend(excluded, tmp_strdup(arg1 + 1));
+        } else if (arg1[0] == '-') {
+            if (is_abbrev(arg1, "-nomob")) {
+                no_mob = true;
+            }
+            if (is_abbrev(arg1, "-noobject")) {
+                no_object = true;
+            }
+            if (is_abbrev(arg1, "-nohouse")) {
+                no_house = true;
+            }
+            if (is_abbrev(arg1, "-house")) {
+                house_only = true;
+            }
+        } else {
+            required = g_list_prepend(required, tmp_strdup(arg1));
+        }
+    }
+
+    if (!required) {        // if there are no required fields don't search
+        send_to_char(ch,
+                     "You're going to have to be a bit more specific than that.\r\n");
+        return;
+    }
+
+    if (house_only && no_house) {
+        send_to_char(ch,
+                     "Nothing exists both inside and outside a house.\r\n");
+        return;
+    }
+
+    if (!no_mob) {
+        GList *cit;
+        int num = 0;
+        for (cit = first_living(creatures); cit; cit = next_living(cit)) {
+            struct creature *i = cit->data;
+            if (can_see_creature(ch, i)
+                && i->in_room
+                && creature_matches_terms(required, excluded, i)
+                && (GET_NPC_SPEC(i) != fate
+                    || GET_LEVEL(ch) >= LVL_SPIRIT)) {
+                sb_sprintf(&sb, "%sM%s%3d. %s%-25s%s - %s[%s%5d%s]%s %s%s%s\r\n",
+                           CCRED_BLD(ch, NRM), CCNRM(ch, NRM), ++num, CCYEL(ch,
+                                                                            C_NRM), GET_NAME(i), CCNRM(ch, C_NRM), CCGRN(ch,
+                                                                                                                         C_NRM), CCNRM(ch, C_NRM), i->in_room->number,
+                           CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
+                           i->in_room->name, CCNRM(ch, C_NRM));
+            }
+        }
+        found = (num > 0);
+    }
+
+    if (!no_object) {
+        int num = 0;
+        for (struct obj_data *k = object_list; k; k = k->next) {
+            if (!can_see_object(ch, k)) {
                 continue;
             }
-            struct creature *player = (d->original ? d->original : d->creature);
-            struct creature *form = d->creature;
-
-            if (player && player->in_room && (show_morts || IS_IMMORT(player))) {
-                const char *notes = "";
-
-                if (player != form) {
-                    notes = tmp_sprintf("%s%s (in %s)", notes, CCGRN(ch, C_CMP),
-                                        GET_NAME(form));
-                }
-                if (ROOM_FLAGGED(form->in_room, ROOM_HOUSE)) {
-                    notes = tmp_sprintf("%s%s (house)", notes, CCMAG(ch, C_CMP));
-                }
-                if (ROOM_FLAGGED(form->in_room, ROOM_ARENA)) {
-                    notes = tmp_sprintf("%s%s (arena)", notes, CCYEL(ch, C_CMP));
-                }
-                if (!IS_APPR(form->in_room->zone)) {
-                    notes = tmp_sprintf("%s%s (!appr)", notes, CCRED(ch, C_CMP));
-                }
-                if (ROOM_FLAGGED(form->in_room, ROOM_CLAN_HOUSE)) {
-                    notes = tmp_sprintf("%s%s (clan)", notes, CCCYN(ch, C_CMP));
-                }
-                sb_sprintf(&sb,  "%s%-20s%s - %s[%s%5d%s]%s %s%s%s%s\r\n",
-                            (GET_LEVEL(player) >= LVL_AMBASSADOR ? CCGRN(ch, C_NRM) : ""),
-                            GET_NAME(player),
-                            (GET_LEVEL(player) >= LVL_AMBASSADOR ? CCNRM(ch, C_NRM) : ""),
-                            CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-                            form->in_room->number,
-                            CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-                            CCCYN(ch, C_NRM), form->in_room->name,
-                            notes, CCNRM(ch, C_NRM));
+            if (house_only && !obj_in_house(k)) {
+                continue;
+            }
+            if (no_house && obj_in_house(k)) {
+                continue;
+            }
+            if (object_matches_terms(required, excluded, k)) {
+                found = true;
+                sb_print_object_location(&sb, ++num, k, ch, true);
             }
         }
+        found = found || (num > 0);
+    }
+
+    if (found) {
         page_string(ch->desc, sb.str);
     } else {
-        register struct creature *i = NULL;
-        for (arg1 = tmp_getword(&arg); *arg1; arg1 = tmp_getword(&arg)) {
-            if (arg1[0] == '!') {
-                excluded = g_list_prepend(excluded, tmp_strdup(arg1 + 1));
-            } else if (arg1[0] == '-') {
-                if (is_abbrev(arg1, "-nomob")) {
-                    no_mob = true;
-                }
-                if (is_abbrev(arg1, "-noobject")) {
-                    no_object = true;
-                }
-                if (is_abbrev(arg1, "-nohouse")) {
-                    no_house = true;
-                }
-                if (is_abbrev(arg1, "-house")) {
-                    house_only = true;
-                }
-            } else {
-                required = g_list_prepend(required, tmp_strdup(arg1));
-            }
-        }
-
-        if (!required) {        // if there are no required fields don't search
-            send_to_char(ch,
-                         "You're going to have to be a bit more specific than that.\r\n");
-            return;
-        }
-
-        if (house_only && no_house) {
-            send_to_char(ch,
-                         "Nothing exists both inside and outside a house.\r\n");
-            return;
-        }
-
-        if (!no_mob) {
-            GList *cit;
-            for (cit = first_living(creatures); cit; cit = next_living(cit)) {
-                i = cit->data;
-                if (can_see_creature(ch, i)
-                    && i->in_room
-                    && creature_matches_terms(required, excluded, i)
-                    && (GET_NPC_SPEC(i) != fate
-                        || GET_LEVEL(ch) >= LVL_SPIRIT)) {
-                    found = 1;
-                    sb_sprintf(&sb, "%sM%s%3d. %s%-25s%s - %s[%s%5d%s]%s %s%s%s\r\n",
-                        CCRED_BLD(ch, NRM), CCNRM(ch, NRM), ++num, CCYEL(ch,
-                                                                         C_NRM), GET_NAME(i), CCNRM(ch, C_NRM), CCGRN(ch,
-                                                                                                                      C_NRM), CCNRM(ch, C_NRM), i->in_room->number,
-                        CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
-                        i->in_room->name, CCNRM(ch, C_NRM));
-                }
-            }
-        }
-
-        if (!no_object) {
-            for (num = 0, k = object_list; k; k = k->next) {
-                if (!can_see_object(ch, k)) {
-                    continue;
-                }
-                if (house_only && !obj_in_house(k)) {
-                    continue;
-                }
-                if (no_house && obj_in_house(k)) {
-                    continue;
-                }
-                if (object_matches_terms(required, excluded, k)) {
-                    found = 1;
-                    sb_print_object_location(&sb, ++num, k, ch, true);
-                }
-            }
-        }
-
-        if (found) {
-            page_string(ch->desc, sb.str);
-        } else {
-            send_to_char(ch, "Couldn't find any such thing.\r\n");
-        }
+        send_to_char(ch, "Couldn't find any such thing.\r\n");
     }
 }
 
@@ -4069,12 +4075,12 @@ ACMD(do_where)
 {
     skip_spaces(&argument);
 
-    if (is_authorized(ch, FULL_IMMORT_WHERE, NULL)) {
-        perform_immort_where(ch, argument, true);
-        return;
-    }
     if (IS_IMMORT(ch)) {
-        perform_immort_where(ch, argument, false);
+        if (*argument) {
+            perform_immort_where(ch, argument);
+        } else {
+            perform_immort_playerlist(ch);
+        }
         return;
     }
 
