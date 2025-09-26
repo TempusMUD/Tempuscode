@@ -395,6 +395,7 @@ ACMD(do_settings)
     }
     if (search_idx == -1) {
         send_to_char(ch, "No setting matches '%s'.\r\n", search_arg);
+        return;
     }
     if (!*set_arg) {
         return;
