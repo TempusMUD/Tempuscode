@@ -1117,10 +1117,6 @@ do_auto_exits(struct str_builder *sb, struct creature *ch, struct room_data *roo
             continue;
         }
 
-        if (IS_SET(room->dir_option[door]->exit_info, EX_HIDDEN | EX_SECRET)) {
-            continue;
-        }
-
         if (reader) {
             if (found) {
                 sb_strcat(sb, ", ", NULL);
@@ -1129,26 +1125,26 @@ do_auto_exits(struct str_builder *sb, struct creature *ch, struct room_data *roo
             }
             if (IS_SET(room->dir_option[door]->exit_info, EX_HIDDEN)
                 && PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
-                sb_sprintf(sb,  "hidden %s", tmp_tolower(dirs[door]));
+                sb_sprintf(sb,  "hidden %s", dirs[door]);
             } else if (IS_SET(room->dir_option[door]->exit_info, EX_SECRET)
                 && PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
-                sb_sprintf(sb,  "secret %s", tmp_tolower(dirs[door]));
+                sb_sprintf(sb,  "secret %s", dirs[door]);
             } else if (IS_SET(room->dir_option[door]->exit_info, EX_CLOSED)) {
-                sb_sprintf(sb,  "blocked %s", tmp_tolower(dirs[door]));
+                sb_sprintf(sb,  "blocked %s", dirs[door]);
             } else {
-                sb_sprintf(sb,  "%s", tmp_tolower(dirs[door]));
+                sb_sprintf(sb,  "%s", dirs[door]);
             }
         } else {
             if (IS_SET(room->dir_option[door]->exit_info, EX_HIDDEN)
                 && PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
-                sb_sprintf(sb,  "(%c) ", tolower(*dirs[door]));
+                sb_sprintf(sb,  "(%c) ", *dirs[door]);
             } else if (IS_SET(room->dir_option[door]->exit_info, EX_SECRET)
                 && PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
-                sb_sprintf(sb,  "[%c] ", tolower(*dirs[door]));
+                sb_sprintf(sb,  "[%c] ", *dirs[door]);
             } else if (IS_SET(room->dir_option[door]->exit_info, EX_CLOSED)) {
-                sb_sprintf(sb,  "|%c| ", tolower(*dirs[door]));
+                sb_sprintf(sb,  "|%c| ", *dirs[door]);
             } else {
-                sb_sprintf(sb,  "%c ", tolower(*dirs[door]));
+                sb_sprintf(sb,  "%c ", *dirs[door]);
             }
         }
         found = true;
