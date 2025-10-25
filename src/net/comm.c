@@ -854,6 +854,11 @@ accept_new_connection(GIOChannel *listener_io,
     newd->idle = 0;
     newd->ban_dc_counter = 0;
     newd->vars = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
+    newd->msdp_local_vars = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
+    newd->msdp_remote_vars = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
+    newd->msdp_report_vars = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
+    newd->msdp_dirty_vars = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
+
 
     if (port == reader_port) {
         newd->display = BLIND;
@@ -939,9 +944,12 @@ process_output(__attribute__ ((unused)) GIOChannel *io,
                         || d->account->compact_level == 2))) {
                 d_send(d, "\r\n");
             }
-            if (d->eor_enabled) {
-                d_send_bytes(d, 2, IAC, EOR);
-            }
+        }
+        if (d->telnet.host[MSDP].enabled) {
+            report_msdp_vars(d);
+        }
+        if (d->eor_enabled) {
+            d_send_bytes(d, 2, IAC, EOR);
         }
         d->need_prompt = false;
     }

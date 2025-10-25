@@ -29,6 +29,7 @@
 #include "room_data.h"
 #include "zone_data.h"
 #include "race.h"
+#include "desc_data.h"
 #include "creature.h"
 #include "db.h"
 #include "tmpstr.h"
@@ -37,6 +38,13 @@
 #include "strutil.h"
 
 // Protocols
+#define MSDP 69
+const uint8_t MSDP_VAR = 1;
+const uint8_t MSDP_VAL = 2;
+const uint8_t MSDP_TABLE_OPEN = 3;
+const uint8_t MSDP_TABLE_CLOSE = 4;
+const uint8_t MSDP_ARRAY_OPEN = 5;
+const uint8_t MSDP_ARRAY_CLOSE = 6;
 #define MSSP 70
 const uint8_t MSSP_VAR = 1;
 const uint8_t MSSP_VAL = 2;
@@ -86,6 +94,7 @@ const char *telnet_option_descs[256] = {
 	"ENCRYPT", "NEW-ENVIRON", 0,
     [MSSP] = "MSSP",
     [MCCP2] = "MCCP2",
+    [MSDP] = "MSDP",
 };
 
 
@@ -187,10 +196,6 @@ send_mssp_block(struct descriptor_data *d)
     send_mssp_var(d, "MOBILES", tmp_sprintf("%d", g_hash_table_size(mob_prototypes)));
     send_mssp_var(d, "OBJECTS", tmp_sprintf("%d", g_hash_table_size(obj_prototypes)));
     send_mssp_var(d, "ROOMS", tmp_sprintf("%d", g_hash_table_size(rooms)));
-    send_mssp_var(d, "ANSI", "1");
-    send_mssp_var(d, "CLASSES", "12");
-    send_mssp_var(d, "LEVELS", "49");
-    send_mssp_var(d, "RACES", "9");
 
     // Send static values
     send_mssp_xml(d, "etc/mudinfo.xml");
@@ -436,6 +441,254 @@ handle_mccp2(struct descriptor_data *d, enum host_or_peer endpoint, enum enable_
     }
 }
 
+const char *msdp_vars[] = {
+    "ACCOUNT_NAME", "CHARACTER_NAME", "SERVER_ID", "SERVER_TIME", "SPECIFICATION",
+    "AFFECTS", "ALIGNMENT", "EXPERIENCE", "EXPERIENCE_MAX", "EXPERIENCE_TNL",
+    "EXPERIENCE_TNL_MAX", "HEALTH", "HEALTH_MAX", "LEVEL", "MANIA", "MANA_MAX",
+    "MONEY", "MOVEMENT", "MOVEMENT_MAX", "OPPONENT_LEVEL", "OPPONENT_HEALTH",
+    "OPPONENT_NAME", "OPPONENT_STRENGTH", "ROOM", "WORLD_TIME", "\n"
+};
+const char *msdp_config_vars[] = {
+    "CLIENT_NAME", "CLIENT_VERSION", "PLUGIN_ID", "\n"
+};
+const char *msdp_cmds[] = {
+    "LIST", "REPORT", "RESET", "SEND", "UNREPORT", "\n"
+};
+const char *msdp_lists[] = {
+    "COMMANDS", "LISTS", "CONFIGURABLE_VARIABLES", "REPORTABLE_VARIABLES", "REPORTED_VARIABLES", "SENDABLE_VARIABLES", "\n"
+};
+
+// Parse out either VAR+name or VAL+name, returning a tmpstr and
+// modifying buf and len to point just after the var or val argument.
+static char *
+msdp_varval(uint8_t **buf, size_t *len)
+{
+    if (*len == 0) {
+        return "";
+    }
+    if (**buf != MSDP_VAR && **buf != MSDP_VAL) {
+        return "";
+    }
+    uint8_t *start = *buf;
+    (*len)--;
+    (*buf)++;
+    int end_idx = 0;
+    while (*len > 0 && isgraph(start[end_idx+1])) {
+        end_idx++;
+        (*len)--;
+        (*buf)++;
+    }
+    return tmp_substr((char *)start, 0, end_idx);
+}
+
+void
+handle_msdp_sub(struct descriptor_data *d, uint8_t *buf, size_t len)
+{
+    while (len > 0) {
+        char *cmd = msdp_varval(&buf, &len);
+        if (*cmd != MSDP_VAR) {
+            errlog("protocol breach - expected MSDP_VAR command");
+            return;
+        }
+        cmd++;
+        if (streq(cmd, "LIST")) {
+            char *arg = msdp_varval(&buf, &len);
+            if (*arg != MSDP_VAL) {
+                errlog("expected MSDP_VAL argument in LIST");
+                return;
+            }
+            arg++;
+
+            const char **msdp_list;
+            guint list_len;
+            bool list_is_allocated = false;
+            if (streq(arg,"COMMANDS")) {
+                msdp_list = msdp_cmds;
+            } else if (streq(arg, "LISTS")) {
+                msdp_list = msdp_lists;
+            } else if (streq(arg, "CONFIGURABLE_VARIABLES")) {
+                msdp_list = msdp_config_vars;
+            } else if (streq(arg, "REPORTABLE_VARIABLES")) {
+                msdp_list = msdp_vars;
+            } else if (streq(arg, "SENDABLE_VARIABLES")) {
+                msdp_list = msdp_vars;
+            } else if (streq(arg, "REPORTED_VARIABLES")) {
+                msdp_list = (const char **)g_hash_table_get_keys_as_array(d->msdp_report_vars, &list_len);
+                list_is_allocated = true;
+            } else {
+                errlog("Unknown LIST arg %s.", arg);
+            }
+
+            struct str_builder response = str_builder_default;
+            sb_sprintf(&response, "%c%c%c", IAC, SB, MSDP);
+            sb_sprintf(&response, "%c%s%c%c", MSDP_VAR, arg, MSDP_VAL, MSDP_ARRAY_OPEN);
+            if (list_is_allocated) {
+                for (int i = 0;i < list_len;i++) {
+                    sb_sprintf(&response, "%c%s", MSDP_VAL, msdp_list[i]);
+                }
+            } else {
+                for (int i = 0;msdp_list[i][0] != '\n';i++) {
+                    sb_sprintf(&response, "%c%s", MSDP_VAL, msdp_list[i]);
+                }
+            }
+            sb_sprintf(&response, "%c%c%c", MSDP_ARRAY_CLOSE, IAC, SE);
+            d_send_raw(d, response.str, response.len);
+            if (list_is_allocated) {
+                g_free(msdp_list);
+            }
+        } else if (streq(cmd, "REPORT") || streq(cmd, "SEND")) {
+            struct str_builder sb = str_builder_default;
+            bool adding_report = streq(cmd, "REPORT");
+
+            sb_sprintf(&sb, "%c%c%c", IAC, SB, MSDP);
+            while (len > 0) {
+                char *var = msdp_varval(&buf, &len);
+                if (*var != MSDP_VAL) {
+                    errlog("Expected MSDP_VAL not found.");
+                    return;
+                }
+                var++;
+                char *val = g_hash_table_lookup(d->msdp_local_vars, var);
+                if (val) {
+                    // the variable might not be set so omit it but still add it to the reportable vars.
+                    sb_sprintf(&sb, "%c%s%c%s", MSDP_VAR, var, MSDP_VAL, val);
+                }
+                if (adding_report) {
+                    char *durable_var = strdup(var);
+                    g_hash_table_insert(d->msdp_report_vars, durable_var, durable_var);
+                }
+            }
+            sb_sprintf(&sb, "%c%c", IAC, SE);
+            d_send_raw(d, sb.str, sb.len);
+        } else if (streq(cmd, "RESET")) {
+            if (streq(cmd, "REPORTED_VARIABLES")) {
+                // The only RESET supported here is the reported
+                // variables, where it just clears them.
+                g_hash_table_remove_all(d->msdp_report_vars);
+            }
+        } else if (streq(cmd, "UNREPORT")) {
+            while (len > 0) {
+                char *var = msdp_varval(&buf, &len);
+                if (*var != MSDP_VAL) {
+                    errlog("Expected MSDP_VAL not found.");
+                    return;
+                }
+                var++;
+                g_hash_table_remove(d->msdp_report_vars, var);
+            }
+        } else {
+            // This is an attempt for a client to configure a variable.
+            while (len > 0) {
+                char *val = msdp_varval(&buf, &len);
+                if (*val != MSDP_VAL) {
+                    errlog("Expected MSDP_VAL not found.");
+                    return;
+                }
+                val++;
+                g_hash_table_insert(d->msdp_remote_vars, strdup(cmd), strdup(val));
+            }
+        }
+    }
+}
+
+void
+set_msdp_var(struct descriptor_data *d, const char *var, const char *val)
+{
+    // Remove variable value on NULL.
+    if (val == NULL) {
+        g_hash_table_remove(d->msdp_local_vars, var);
+        return;
+    }
+    // Do nothing when no change.
+    const char *old_val = g_hash_table_lookup(d->msdp_local_vars, var);
+    if (old_val != NULL && streq(val, old_val)) {
+        return;
+    }
+    g_hash_table_insert(d->msdp_local_vars, strdup(var), strdup(val));
+    char *durable_var = strdup(var);
+    g_hash_table_insert(d->msdp_dirty_vars, durable_var, durable_var);
+}
+
+const char *
+msdp_table(const char *start, ...)
+{
+    struct str_builder result = str_builder_default;
+
+    sb_sprintf(&result, "%c%s", MSDP_TABLE_OPEN, start);
+
+    va_list args;
+    va_start(args, start);
+    const char *s = va_arg(args, const char *);
+    while (s != NULL) {
+        sb_sprintf(&result, "%s", s);
+        s = va_arg(args, const char *);
+    }
+
+    sb_sprintf(&result, "%c", MSDP_TABLE_CLOSE);
+
+    return result.str;
+}
+
+const char *
+msdp_array(const char * start, ...)
+{
+    struct str_builder result = str_builder_default;
+
+    sb_sprintf(&result, "%c%s", MSDP_ARRAY_OPEN, start);
+
+    va_list args;
+    va_start(args, start);
+    const char *s = va_arg(args, const char *);
+    while (s != NULL) {
+        sb_sprintf(&result, "%s", s);
+        s = va_arg(args, const char *);
+    }
+
+    sb_sprintf(&result, "%c", MSDP_ARRAY_CLOSE);
+
+    return result.str;
+}
+
+const char *
+msdp_var_int(const char *key, int val)
+{
+    return tmp_sprintf("%c%s%c%d", MSDP_VAR, key, MSDP_VAL, val);
+}
+
+const char *
+msdp_var_str(const char *key, const char *val)
+{
+    return tmp_sprintf("%c%s%c%s", MSDP_VAR, key, MSDP_VAL, val);
+}
+
+void
+report_msdp_vars(struct descriptor_data *d)
+{
+    const char **msdp_list;
+    guint list_len;
+
+    msdp_list = (const char **)g_hash_table_get_keys_as_array(d->msdp_report_vars, &list_len);
+    if (list_len == 0) {
+        // Nothing to send.
+        return;
+    }
+    struct str_builder response = str_builder_default;
+    sb_sprintf(&response, "%c%c%c", IAC, SB, MSDP);
+    for (int i = 0;i < list_len;i++) {
+        if (g_hash_table_lookup(d->msdp_dirty_vars, msdp_list[i])) {
+            sb_sprintf(&response, "%c%s%c%s",
+                       MSDP_VAR, msdp_list[i],
+                       MSDP_VAL,
+                       (char *)g_hash_table_lookup(
+                           d->msdp_local_vars,
+                           msdp_list[i]));
+        }
+    }
+    sb_sprintf(&response, "%c%c", IAC, SE);
+    d_send_raw(d, response.str, response.len);
+    g_hash_table_remove_all(d->msdp_dirty_vars);
+}
+
 static void
 set_telnet_option(struct descriptor_data *d, enum host_or_peer endpoint, int opt, enum enable_or_disable enable)
 {
@@ -479,6 +732,10 @@ init_telnet(void)
     telnet_config[TELOPT_NEW_ENVIRON].supported = true;
     telnet_config[TELOPT_NEW_ENVIRON].demand = true;
     telnet_config[TELOPT_NEW_ENVIRON].on_response = handle_new_environ;
+    // MSDP is the Mud Server Data Protocol, used to send arbitrary
+    // data to clients.
+    telnet_config[MSDP].supported = true;
+    telnet_config[MSDP].advertise = true;
     // MSSP is the Mud Server Status Protocol, used mostly to tell
     // crawlers about the MUD.  Some mud clients also support it.
     // See: https://tintin.mudhalla.net/protocols/mssp/
@@ -587,8 +844,15 @@ find_iac_se(uint8_t *buf, ssize_t len)
 {
     len -= 1;  // we're checking pos and pos+1
     for (ssize_t pos = 0;pos < len;pos++) {
-        if (buf[pos] == IAC && buf[pos+1] == SE) {
-            return pos;
+        if (buf[pos] == IAC) {
+            if (buf[pos+1] == SE) {
+                // IAC SE found
+                return pos;
+            }
+            if (buf[pos+1] == IAC) {
+                // skip over escaped IAC
+                pos++;
+            }
         }
     }
     return -1;
@@ -646,6 +910,9 @@ handle_telnet(struct descriptor_data *d, uint8_t *buf, size_t len)
             break;
         case TELOPT_NEW_ENVIRON:
             handle_new_environ_sub(d, read_pt + 1, end_pos - 1);
+            break;
+        case MSDP:
+            handle_msdp_sub(d, read_pt + 1, end_pos - 1);
             break;
         default:
             slog("Unknown telnet subnegotiation %d", *read_pt);

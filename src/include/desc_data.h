@@ -70,6 +70,7 @@ enum display_mode {
     IRC,                        // Text interface optimized for IRC
 };
 
+#define MSDP 69
 #define MSSP 70
 #define MCCP2 86
 
@@ -129,6 +130,10 @@ struct descriptor_data {
     struct telnet_option telnet; /* Telnet protocol options */
     struct client_info client_info;
     GHashTable *vars;           /* extended client info */
+    GHashTable *msdp_local_vars; /* vars set locally */
+    GHashTable *msdp_report_vars; /* set of vars that need to be reported when changed */
+    GHashTable *msdp_dirty_vars; /* set of changed but unreported vars */
+    GHashTable *msdp_remote_vars; /* vars received from client */
     int ttype_phase;    /* TTYPE sends three unlabeled bits of info per call */
     void *mode_data;            // pointer for misc data needed for input_mode
     int wait;                   /* wait for how many loops      */
@@ -167,6 +172,13 @@ struct descriptor_data {
 
 void set_desc_state(enum cxn_state state, struct descriptor_data *d);
 void set_desc_variable(struct descriptor_data *d, const char *key, const char *val);
+
+void report_msdp_vars(struct descriptor_data *d);
+void set_msdp_var(struct descriptor_data *d, const char *var, const char *val);
+const char *msdp_table(const char *,...)
+    __attribute__((sentinel));
+const char *msdp_var_int(const char *, int);
+const char *msdp_var_str(const char *, const char *);
 
 extern struct descriptor_data *descriptor_list;
 extern const char *telnet_option_descs[];
