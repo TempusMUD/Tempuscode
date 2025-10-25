@@ -250,6 +250,7 @@ dispatch_input(struct descriptor_data *d, char *arg)
                             tmp_sprintf("account %s", d->account->name));
             }
             account_login(d->account, d);
+            set_msdp_var(d, "ACCOUNT_NAME", d->account->name);
         } else if (recovery_code_check(d->account->email, arg)) {
             slog("recovery: %s[%d] from %s", d->account->name, d->account->id, d->host);
             set_desc_state(CXN_PW_PROMPT, d);
@@ -1118,6 +1119,26 @@ build_prompt(struct descriptor_data *d)
             errlog("NULL d->creature in send_prompt() while in CXN_PLAYING state");
             return "";
         }
+
+        struct time_info_data local_time;
+        set_local_time(d->creature->in_room->zone, &local_time);
+
+        // Update MSDP variables
+        set_msdp_var(d, "ALIGNMENT", tmp_sprintf("%d", GET_ALIGNMENT(d->creature)));
+        set_msdp_var(d, "HEALTH", tmp_sprintf("%d", GET_HIT(d->creature)));
+        set_msdp_var(d, "HEALTH_MAX", tmp_sprintf("%d", GET_MAX_HIT(d->creature)));
+        set_msdp_var(d, "MANA", tmp_sprintf("%d", GET_MANA(d->creature)));
+        set_msdp_var(d, "MANA_MAX", tmp_sprintf("%d", GET_MAX_MANA(d->creature)));
+        set_msdp_var(d, "MOVEMENT", tmp_sprintf("%d", GET_MOVE(d->creature)));
+        set_msdp_var(d, "MOVEMENT_MAX", tmp_sprintf("%d", GET_MAX_MOVE(d->creature)));
+        set_msdp_var(d, "MONEY_PAST", tmp_sprintf(PRId64, GET_GOLD(d->creature)));
+        set_msdp_var(d, "MONEY_FUTURE", tmp_sprintf(PRId64, GET_CASH(d->creature)));
+        set_msdp_var(d, "EXPERIENCE", tmp_sprintf("%d", GET_EXP(d->creature)));
+        set_msdp_var(d, "WORLD_TIME", tmp_sprintf("%d%s",
+                                                  ((local_time.hours % 12 == 0) ?
+                                                   12 : ((local_time.hours) % 12)),
+                                                  ((local_time.hours >= 12) ? "PM" : "AM")));
+
         if (d->display == BLIND) {
             return "";
         }
@@ -1173,8 +1194,6 @@ build_prompt(struct descriptor_data *d)
                 sb_sprintf(&sb, "%s%s%s", CCYEL_BLD(d->creature,
                                                 C_CMP), "!TIME ", CCNRM(d->creature, C_SPR));
             } else {
-                struct time_info_data local_time;
-                set_local_time(d->creature->in_room->zone, &local_time);
                 snprintf(colorbuf, sizeof(colorbuf), "%s%s", CCNRM(d->creature, C_SPR),
                          CCYEL(d->creature, C_NRM));
                 if (local_time.hours > 8 && local_time.hours < 18) {    // day
@@ -1189,8 +1208,8 @@ build_prompt(struct descriptor_data *d)
                 }
 
                 sb_sprintf(&sb, "%s%d%s%s%s%s ", colorbuf,
-                            ((local_time.hours % 12 ==
-                              0) ? 12 : ((local_time.hours) % 12)),
+                            ((local_time.hours % 12 == 0) ?
+                             12 : ((local_time.hours) % 12)),
                             CCNRM(d->creature, C_SPR), CCYEL_BLD(d->creature, C_CMP),
                             ((local_time.hours >= 12) ? "PM" : "AM"),
                             CCNRM(d->creature, C_SPR));
@@ -1529,6 +1548,8 @@ send_menu(struct descriptor_data *d)
             free_creature(d->creature);
             d->creature = NULL;
         }
+
+        set_msdp_var(d, "CREATURE_NAME", "");
 
         if (d->display == BLIND) {
             struct creature *tmp_ch;
@@ -2019,6 +2040,7 @@ char_to_game(struct descriptor_data *d)
                  CCRED(d->creature, C_NRM), CCBLD(d->creature, C_NRM), WELC_MESSG,
                  CCNRM(d->creature, C_NRM));
 
+    set_msdp_var(d, "CHARACTER_NAME", GET_NAME(d->creature));
     creatures = g_list_prepend(creatures, d->creature);
     g_hash_table_insert(creature_map,
                         GINT_TO_POINTER(GET_IDNUM(d->creature)), d->creature);

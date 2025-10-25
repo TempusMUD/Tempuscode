@@ -54,6 +54,8 @@
 #include "smokes.h"
 #include "strutil.h"
 #include "paths.h"
+#include "str_builder.h"
+#include "sector.h"
 
 /* external vars */
 extern struct descriptor_data *descriptor_list;
@@ -910,6 +912,40 @@ char_from_room(struct creature *ch, bool check_specials)
     return true;
 }
 
+void
+update_msdp_location(struct creature *ch)
+{
+    struct str_builder exit_table = str_builder_default;
+    struct room_data *room = ch->in_room;
+
+    if (ch->desc == NULL || room == NULL) {
+        return;
+    }
+
+    for (int door = 0; door < NUM_OF_DIRS; door++) {
+        if (!room->dir_option[door] || !room->dir_option[door]->to_room) {
+            continue;
+        }
+
+        if (IS_SET(room->dir_option[door]->exit_info, EX_HIDDEN | EX_SECRET | EX_CLOSED)) {
+            continue;
+        }
+
+        sb_sprintf(&exit_table, "%s",
+                   msdp_var_int(tmp_substr(dirs[door], 0, 0), room->dir_option[door]->to_room->number));
+     }
+
+    set_msdp_var(ch->desc, "ROOM",
+                     msdp_table(
+                         msdp_var_int("VNUM", room->number),
+                         msdp_var_str("NAME", room->name),
+                         msdp_var_str("AREA", room->zone->name),
+                         msdp_var_str("TERRAIN", sector_name_by_idnum(room->sector_type)),
+                         msdp_var_str("EXITS",
+                                      msdp_table(exit_table.str, NULL)),
+                         NULL));
+}
+
 /*
  * place a character in a room
  *
@@ -935,6 +971,10 @@ char_to_room(struct creature *ch, struct room_data *room,
 
     room->people = g_list_prepend(room->people, ch);
     ch->in_room = room;
+
+    if (ch->desc) {
+        update_msdp_location(ch);
+    }
 
     if (GET_RACE(ch) == RACE_ELEMENTAL && IS_CLASS(ch, CLASS_FIRE)) {
         room->light++;
