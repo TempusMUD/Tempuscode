@@ -121,6 +121,9 @@ SETTING(pref_debug, "OLC", ONOFF(PRF2_FLAGGED(ch, PRF2_DEBUG)), set_pref_bit(ch,
 SETTING(pref_holylight, "OLC", ONOFF(PRF_FLAGGED(ch, PRF_HOLYLIGHT)), set_pref_bit(ch, val, 1, PRF_HOLYLIGHT),
         "Everything is visible to you")
 
+SETTING(pref_mortalized, "WizardFull", ONOFF(PLR_FLAGGED(ch, PLR_MORTALIZED)), set_pflag_bit(ch, val, 1, PLR_MORTALIZED),
+        "Allow yourself to be a mere mortal.")
+
 SETTING(pref_poofin, "OLC", get_pref_str(POOFIN(ch)), set_pref_str(ch, val, &POOFIN(ch)),
         "Message emitted when you transport yourself into a room.")
 
