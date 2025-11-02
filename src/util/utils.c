@@ -24,6 +24,7 @@
 #include <libpq-fe.h>
 #include <libxml/parser.h>
 #include <glib.h>
+#include <backtrace.h>
 
 #include "structs.h"
 #include "utils.h"
@@ -214,30 +215,52 @@ mudlog(int8_t level, enum log_type type, bool file, const char *fmt, ...)
     va_end(args);
 }
 
+static int
+bt_callback(void *data, uintptr_t pc,
+            const char *filename, int lineno,
+            const char *function)
+{
+    struct str_builder *sb = data;
+    sb_sprintf(sb, "    %s (%s:%d)\n", function, filename, lineno);
+    return 0;
+}
+
+void
+bt_error(void *data, const char *msg, int errnum)
+{
+    fprintf(stderr, "FATAL: Backtrace error: %s [%d]\n", msg, errnum);
+    exit(-1);
+}
+
+struct backtrace_state *bt_state;
+
+void
+backtrace_init(void)
+{
+    bt_state = backtrace_create_state("/proc/self/exe", false, bt_error, NULL);
+}
+
 void
 errlog(const char *fmt, ...)
 {
-#define MAX_FRAMES 10
+    struct str_builder sb = str_builder_default;
+
+    sb_sprintf(&sb, "SYSERR: ");
+
     va_list args;
-    const char *backtrace_str = "";
-    void *ret_addrs[MAX_FRAMES + 1];
-    int x = 0;
-
-    memset(ret_addrs, 0x0, sizeof(ret_addrs));
-    backtrace(ret_addrs, MAX_FRAMES);
-
-    while (x < MAX_FRAMES && ret_addrs[x]) {
-        backtrace_str = tmp_sprintf("%s%p%s", backtrace_str, ret_addrs[x],
-                                    (ret_addrs[x + 1]) ? " " : "");
-        x++;
-    }
-
     va_start(args, fmt);
-    mlog(ROLE_CODER, LVL_AMBASSADOR, NRM, true,
-         "SYSERR: %s", tmp_vsprintf(fmt, args));
+    sb_vsprintf(&sb, fmt, args);
     va_end(args);
 
-    mlog(ROLE_NOONE, LVL_AMBASSADOR, NRM, true, "TRACE: %s", backtrace_str);
+    // Log just the message in the MUD.
+    mlog(ROLE_CODER, LVL_AMBASSADOR, NRM, false, "%s", sb.str);
+
+    // Add the backtrace to the file logging
+    sb_sprintf(&sb, "\n");
+
+    backtrace_full(bt_state, 1, bt_callback, bt_error, &sb);
+
+    mlog(ROLE_NOONE, LVL_AMBASSADOR, NRM, true, "%s", sb.str);
 }
 
 void

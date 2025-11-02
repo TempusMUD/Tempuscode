@@ -1,7 +1,7 @@
 if DEBUG
   DBGFLAG = -g -O0
 else
-  DBGFLAG = -O3
+  DBGFLAG = -g -O3
 endif
 if IPV6_SUPPORT
   USE_IPV6_FLAG=-DUSE_IPV6

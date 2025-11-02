@@ -127,4 +127,4 @@ check_tempus_LDADD = \
                  $(top_builddir)/src/util/xmlc.o \
                  $(top_builddir)/src/weather/weather.o \
 			@CHECK_LIBS@ @POSTGRESQL_LDFLAGS@ @POSTGRESQL_LIBS@ @XML_LIBS@ @GLIB_LIBS@ @ZLIB_LIBS@ \
-	        -lcrypt
+	        -lcrypt -lbacktrace

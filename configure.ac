@@ -45,6 +45,7 @@ PKG_CHECK_MODULES([ZLIB], [zlib])
 AC_CHECK_LIB([rt], [clock_gettime])
 AC_CHECK_LIB([crypt], [crypt])
 AC_CHECK_LIB([m], [ceilf])
+AC_CHECK_LIB([backtrace], [backtrace_create_state])
 
 # Checks for header files.
 AC_HEADER_DIRENT

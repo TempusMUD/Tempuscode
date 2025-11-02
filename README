@@ -11,19 +11,20 @@ In Debian or Ubuntu, you should be able to install all the necessary
 prerequisites with this command:
 
 sudo apt install build-essential postgresql autotools-dev autoconf \
-                 libpq-dev libxml2-dev libglib2.0-dev check git \
-                 autoconf-archive
+                 libpq-dev libxml2-dev libglib2.0-dev libbacktrace-dev \
+                 check git autoconf-archive
 
 Getting Tempus Code
 ------------------------------------------------------------------------
 Tempus development has been through many different source control
 systems in its lifetime.  It started using CVS in 1999, then switched
 to Subversion in 2002.  The repository was converted to darcs in 2007,
-and then to git in 2009.  It was placed on github in 2011.
+and then to git in 2009.  It was placed on github in 2011 and migrated
+to codeberg in 2024.
 
 You should be able to get the latest copy with the following:
 
-  git clone git://github.com/TempusMUD/Tempuscode.git
+  git clone https://codeberg.org/TempusMUD/Tempuscode.git
 
 Building Tempus
 ------------------------------------------------------------------------
@@ -82,4 +83,3 @@ You should now be able to run the code with this command:
   bin/circle sample_lib
 
 Happy hacking!
-

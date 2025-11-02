@@ -45,6 +45,7 @@ extern int proxy_port;
 
 void ensure_environment(void);
 void init_game(void);
+void backtrace_init(void);
 
 int
 main(int argc, char **argv)
@@ -56,6 +57,7 @@ main(int argc, char **argv)
 
     main_port = DFLT_PORT;
 
+    backtrace_init();
     tmp_string_init();
 
     setlocale(LC_ALL, "");
