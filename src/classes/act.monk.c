@@ -587,7 +587,7 @@ ACMD(do_pinch)
     struct affected_type af;
     struct obj_data *ovict = NULL;
     struct creature *vict = NULL;
-    int prob, percent, which_pinch, i;
+    int prob, percent, which_pinch;
     char *pinch_str, *vict_str;
     const char *to_vict = NULL, *to_room = NULL;
     bool happened;
@@ -654,30 +654,26 @@ ACMD(do_pinch)
         return;
     }
 
-    percent = number(1, 101) + GET_LEVEL(vict);
-    prob =
-        CHECK_SKILL(ch,
-                    which_pinch) + GET_LEVEL(ch) + GET_DEX(ch) + GET_HITROLL(ch);
-    prob += (GET_AC(vict) / 5);
+    prob = CHECK_SKILL(ch, which_pinch);
+    prob += GET_LEVEL(ch);
+    prob += GET_DEX(ch);
+    prob += GET_HITROLL(ch);
+    prob -= (GET_AC(vict) / 5);
 
-    for (i = 0; i < NUM_WEARS; i++) {
-        if ((ovict = GET_EQ(ch, i)) && IS_OBJ_TYPE(ovict, ITEM_ARMOR) &&
-            (IS_METAL_TYPE(ovict) || IS_STONE_TYPE(ovict) ||
-             IS_WOOD_TYPE(ovict))) {
-            percent += GET_OBJ_WEIGHT(ovict);
-        }
-    }
-
+    // No pinching nerveless creatures.
     if (IS_PUDDING(vict) || IS_SLIME(vict)) {
         prob = 0;
     }
 
+    // No pinching offline PCs
     if (!IS_NPC(vict) && !vict->desc) {
         prob = 0;
     }
 
     act("$n grabs a nerve on your body!", false, ch, NULL, vict, TO_VICT);
     act("$n suddenly grabs $N!", false, ch, NULL, vict, TO_NOTVICT);
+
+    percent = number(1, 101) + GET_LEVEL(vict);
 
     if (percent > prob || IS_UNDEAD(vict)) {
         send_to_char(ch, "You fail the pinch!\r\n");
