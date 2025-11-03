@@ -771,6 +771,13 @@ struct player_special_data_saved {
     int killer_severity;
     long mana_shield_low;
     long mana_shield_pct;
+
+    GHashTable *challenges;     /* challenge id -> challenge_progress table */
+};
+
+struct challenge_progress {
+    time_t last_update;
+    int stage;
 };
 
 /*
@@ -1480,5 +1487,6 @@ __attribute__ ((nonnull));
 void restore_creature_affects(struct creature *ch,
                               struct aff_stash *aff_stash)
 __attribute__ ((nonnull));
+void update_challenge_progress(struct creature *ch, int challenge_id, int amount);
 
 #endif

@@ -35,6 +35,8 @@
 #include "help.h"
 #include "paths.h"
 #include "account.h"
+#include "challenge.h"
+#include "screen.h"
 
 void extract_norents(struct obj_data *obj);
 void char_arrest_pardoned(struct creature *ch);
@@ -141,6 +143,10 @@ reset_creature(struct creature *ch)
         if (ch->player_specials->tags) {
             g_hash_table_unref(ch->player_specials->tags);
             ch->player_specials->tags = NULL;
+        }
+        if (ch->player_specials->saved.challenges) {
+            g_hash_table_unref(ch->player_specials->saved.challenges);
+            ch->player_specials->saved.challenges = NULL;
         }
         free(ch->player.name);
         free(ch->player.title);
@@ -296,6 +302,36 @@ player_has_tag(struct creature *ch, const char *tag)
     }
 
     return g_hash_table_contains(ch->player_specials->tags, tag);
+}
+
+void
+update_challenge_progress(struct creature *ch, int challenge_id, int amount)
+{
+    if (ch->player_specials->saved.challenges == NULL) {
+        ch->player_specials->saved.challenges = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
+    }
+    struct challenge *chal = g_hash_table_lookup(challenges, GINT_TO_POINTER(challenge_id));
+    if (!chal) {
+        errlog("update_challenge_progress: invalid challenge id %d", challenge_id);
+        return;
+    }
+    struct challenge_progress *progress = g_hash_table_lookup(ch->player_specials->saved.challenges, GINT_TO_POINTER(challenge_id));
+    if (!progress) {
+        CREATE(progress, struct challenge_progress, 1);
+        g_hash_table_insert(ch->player_specials->saved.challenges, GINT_TO_POINTER(challenge_id), progress);
+    }
+    if (progress->stage == chal->stages) {
+        // Do nothing if challenge is already met.
+        return;
+    }
+    progress->last_update = time(NULL);
+    progress->stage += amount;
+    if (progress->stage >= chal->stages) {
+        progress->stage = chal->stages;
+        send_to_char(ch, "%s%sCHALLENGE MET: %s%s\r\n",
+                     CCBLD(ch, C_NRM), CCYEL(ch, C_SPR),
+                     chal->name, CCNRM(ch, C_SPR));
+    }
 }
 
 /**

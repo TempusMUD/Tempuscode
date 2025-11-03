@@ -34,6 +34,7 @@
 #include "search.h"
 #include "prog.h"
 #include "strutil.h"
+#include "challenge.h"
 
 extern char locate_buf[256];
 
@@ -88,6 +89,7 @@ static void prog_do_clear_cond(struct prog_env *env, struct prog_evt *evt, char 
 static void prog_do_trace(struct prog_env *env, struct prog_evt *evt, char *args);
 static void prog_do_tag(struct prog_env *env, struct prog_evt *evt, char *args);
 static void prog_do_untag(struct prog_env *env, struct prog_evt *evt, char *args);
+static void prog_do_award(struct prog_env *env, struct prog_evt *evt, char *args);
 
 // external prototypes
 struct creature *real_mobile_proto(int vnum);
@@ -135,6 +137,7 @@ struct prog_command prog_cmds[] = {
     {"selfpurge", true, prog_do_selfpurge},
     {"tag", true, prog_do_tag},
     {"untag", true, prog_do_untag},
+    {"award", true, prog_do_award},
     {NULL, false, prog_do_halt}
 };
 
@@ -1602,6 +1605,30 @@ DEFPROGHANDLER(untag, env, evt, args)
         return;
     }
     remove_player_tag(env->target, tmp_getword(&args));
+}
+
+DEFPROGHANDLER(award, env, evt, args)
+{
+    if (!env->target) {
+        return;
+    }
+    const char *label = tmp_getword(&args);
+    const char *amount_str = tmp_getword(&args);
+    int amount = 1;
+    if (*amount_str) {
+        amount = atoi(amount_str);
+    }
+    struct challenge *chal = challenge_by_label(label, true);
+    if (!chal) {
+        struct room_data *room = prog_get_owner_room(env);
+        zerrlog(room->zone, "Invalid challenge label %s", label);
+        return;
+    }
+    if (IS_NPC(env->target)) {
+        return;
+    }
+
+    update_challenge_progress(env->target, chal->idnum, amount);
 }
 
 static void

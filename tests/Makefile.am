@@ -107,6 +107,7 @@ check_tempus_LDADD = \
                  $(top_builddir)/src/specials/hell_hunter_spec.o \
                  $(top_builddir)/src/specials/spec_assign.o \
                  $(top_builddir)/src/specials/spec_procs.o \
+                 $(top_builddir)/src/structs/challenge.o \
                  $(top_builddir)/src/structs/creature.o \
                  $(top_builddir)/src/structs/creature_io.o \
                  $(top_builddir)/src/structs/obj_data.o \

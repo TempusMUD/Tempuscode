@@ -65,6 +65,7 @@
 #include "voice.h"
 #include "olc.h"
 #include "strutil.h"
+#include "challenge.h"
 
 #define ZONE_ERROR(message) \
     { zerrlog(state->zone, "%s (cmd %c, num %d)", message, zonecmd->command, zonecmd->line); state->last_cmd = 0; }
@@ -271,12 +272,14 @@ ACMD(do_reboot)
         boot_spells("etc/spells.xml");
     } else if (!strcasecmp(arg, "messages")) {
         load_messages();
+    } else if (!strcasecmp(arg, "challenges")) {
+        boot_challenges("etc/challenges.xml");
     } else {
         send_to_char(ch, "Unknown reboot option.\r\n");
-        send_to_char(ch, "Options: all    *         credits     greeting     info\r\n");
-        send_to_char(ch, "         areas  olc_guide quest_guide handbook     background\r\n");
-        send_to_char(ch, "         paths  trails    timewarps   spells       socials\r\n");
-        send_to_char(ch, "         messages\r\n");
+        send_to_char(ch, "Options: all       *           credits     greeting     info\r\n");
+        send_to_char(ch, "         areas     olc_guide   quest_guide handbook     background\r\n");
+        send_to_char(ch, "         paths     trails      timewarps   spells       socials\r\n");
+        send_to_char(ch, "         messages  challenges\r\n");
         return;
     }
     send_to_char(ch, "%s", OK);
@@ -379,6 +382,8 @@ boot_db(void)
     boot_voices();
     slog("Loading sectors");
     boot_sectors("etc/sectors.xml");
+    slog("Loading challenges");
+    boot_challenges("etc/challenges.xml");
 
     boot_dynamic_text();
     boot_world();

@@ -668,6 +668,35 @@ xml_collect_tags(struct creature *ch)
 }
 
 static struct xmlc_node *
+xml_collect_challenge_progress(struct creature *ch)
+{
+    if (!ch->player_specials->saved.challenges) {
+        return xml_null_node();
+    }
+    struct xmlc_node *node_list = NULL, *last_node = NULL;
+    GHashTableIter iter;
+    gpointer key;
+    struct challenge_progress *val;
+
+    g_hash_table_iter_init(&iter, ch->player_specials->saved.challenges);
+    while (g_hash_table_iter_next(&iter, &key, (gpointer)&val)) {
+        struct xmlc_node *new_node = xml_node(
+            "challenge",
+            xml_int_attr("id", GPOINTER_TO_INT(key)),
+            xml_int_attr("last_update", val->last_update),
+            xml_int_attr("stage", val->stage),
+            NULL);
+        if (last_node) {
+            last_node->next = new_node;
+            last_node = last_node->next;
+        } else {
+            node_list = last_node = new_node;
+        }
+    }
+    return node_list;
+}
+
+static struct xmlc_node *
 xml_collect_affects(struct aff_stash *aff_stash)
 {
     struct xmlc_node *aff_list = NULL, *last_aff = NULL;
@@ -852,6 +881,7 @@ save_player_to_file(struct creature *ch, const char *path)
                  xml_if(!IS_IMMORT(ch),
                         xml_splice(xml_collect_grievances(ch))),
                  xml_splice(xml_collect_tags(ch)),
+                 xml_splice(xml_collect_challenge_progress(ch)),
                  NULL));
 
     restore_creature_affects(ch, &aff_stash);
@@ -1247,6 +1277,18 @@ load_player_from_file(const char *path)
             char *tag = (char *)xmlGetProp(node, (xmlChar *) "tag");
             add_player_tag(ch, tag);
             xmlFree(tag);
+        } else if (xmlMatches(node->name, "challenge")) {
+            struct challenge_progress *progress;
+            CREATE(progress, struct challenge_progress, 1);
+            int id = xmlGetIntProp(node, "id", 0);
+            progress->last_update = xmlGetIntProp(node, "last_update", 0);
+            progress->stage = xmlGetIntProp(node, "stage", 1);
+            if (ch->player_specials->saved.challenges == NULL) {
+                ch->player_specials->saved.challenges = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, free);
+            }
+            g_hash_table_insert(ch->player_specials->saved.challenges,
+                                GINT_TO_POINTER(id),
+                                progress);
         }
     }
 

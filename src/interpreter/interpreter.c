@@ -133,6 +133,7 @@ ACMD(do_cash);
 ACMD(do_cast);
 ACMD(do_ceasefire);
 ACMD(do_cedit);
+ACMD(do_challenges);
 ACMD(do_charge);
 ACMD(do_chat);
 ACMD(do_cinfo);
@@ -583,6 +584,7 @@ struct command_info cmd_info[] = {
     {"camel", POS_RESTING, do_action, 0, 0, 0, 0},
     {"catnap", POS_RESTING, do_action, 0, 0, 0, 0},
     {"chat", POS_RESTING, do_chat, 0, 0, 0, 0},
+    {"challenges", POS_STANDING, do_challenges, 0, 0, 0, 0},
     {"charge", POS_STANDING, do_charge, 0, 0, 0, 0},
     {"chant", POS_RESTING, do_say, 0, 0, 0, 0},
     {"check", POS_STANDING, do_not_here, 1, 0, 0, 0},

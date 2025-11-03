@@ -108,6 +108,7 @@ ETAGSFLAGS = --regex='/^ASPELL(\\([a-zA-Z0-9_]+\\))$/\\1/' --regex='/^ACMD(\\([a
                  specials/hell_hunter_spec.c \
                  specials/spec_assign.c \
                  specials/spec_procs.c \
+                 structs/challenge.c \
                  structs/creature.c \
                  structs/creature_io.c \
                  structs/obj_data.c \

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<challenges>
+  <challenge id="51001" label="test-challenge" name="Test Challenge">
+    <description>You have achieved the test challenge!</description>
+  </challenge>
+  <challenge id="51002" label="test-staged" name="Test Staged Challenge" stages="4">
+    <description>You have achieved the test staged challenge!</description>
+  </challenge>
+  <challenge id="24900" label="tarrasque-slayer" name="Tarrasque Slayer">
+    <description>You have slain the mighty tarrasque.</description>
+    <secret/>
+  </challenge>
+</challenges>

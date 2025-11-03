@@ -73,6 +73,7 @@
 #include "boards.h"
 #include "smokes.h"
 #include "ban.h"
+#include "challenge.h"
 
 /*   external vars  */
 extern struct obj_data *object_list;
@@ -5243,6 +5244,14 @@ show_zones(struct creature *ch, char *arg, char *value)
     page_string(ch->desc, sb.str);
 }
 
+gint
+by_challenge_idnum(gconstpointer a, gconstpointer b)
+{
+    struct challenge const *chal_a = a, *chal_b = b;
+    return (chal_a->idnum < chal_b->idnum) ? -1:
+        (chal_a->idnum > chal_b->idnum) ? 1:0;
+}
+
 #define SFC_OBJ 1
 #define SFC_MOB 2
 #define SFC_ROOM 3
@@ -5294,6 +5303,7 @@ struct show_struct fields[] = {
     {"timewarps", LVL_IMMORT, ""},  // 43
     {"voices", LVL_IMMORT, ""},
     {"socket", LVL_IMMORT, "WizardFull"},
+    {"challenges", LVL_IMMORT, "WizardFull"},
     {"\n", 0, ""}
 };
 
@@ -6106,14 +6116,36 @@ ACMD(do_show)
             sb_sprintf(&sb, "\r\nClient variables:");
             GList *keys = g_hash_table_get_keys(d->vars);
             keys = g_list_sort(keys, (GCompareFunc)strcmp);
-            for (int i = 0;i < g_list_length(keys);i++) {
-                const char *key = g_list_nth_data(keys, i);
+            for (GList *it = keys;it != NULL;it = it->next) {
+                const char *key = (char *)it->data;
                 const char *val = g_hash_table_lookup(d->vars, key);
                 sb_sprintf(&sb, "\r\n   %-20s: %s", key, val);
             }
             g_list_free(keys);
         }
         send_to_char(ch, "%s\r\n", sb.str);
+        break;
+    case 46:                    /* challenges */
+        if (g_hash_table_size(challenges) == 0) {
+            send_to_char(ch, "No challenges are defined. :(\r\n");
+            return;
+        }
+        sb_sprintf(&sb, "S?    ID Label                Parts Name\r\n");
+        sb_sprintf(&sb, "-- ----- -------------------- ----- -----------------------------------\r\n");
+        GList *chal_list = g_hash_table_get_values(challenges);
+        chal_list = g_list_sort(chal_list, (GCompareFunc)by_challenge_idnum);
+        for (GList *it = chal_list;it != NULL;it = it->next) {
+            struct challenge *chal = it->data;
+            sb_sprintf(&sb, "%c  %5d %-20s %5d %-35s\r\n",
+                       (chal->secret) ? '*':' ',
+                       chal->idnum,
+                       chal->label,
+                       chal->stages,
+                       chal->name);
+            sb_sprintf(&sb, "         '%s'\r\n",
+                       chal->desc);
+        }
+        page_string(ch->desc, sb.str);
         break;
     default:
         send_to_char(ch, "Sorry, I don't understand that.\r\n");

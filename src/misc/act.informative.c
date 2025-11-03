@@ -61,6 +61,7 @@
 #include "weather.h"
 #include "smokes.h"
 #include "account.h"
+#include "challenge.h"
 
 /* extern variables */
 extern int mini_mud;
@@ -2882,6 +2883,77 @@ do_blind_score(struct creature *ch)
         sb_strcat(&sb,  "You are mortalized.\r\n", NULL);
     }
 
+    page_string(ch->desc, sb.str);
+}
+
+static int
+int_compare(int a, int b)
+{
+    return (a < b) ? -1:(a > b) ? 1:0;
+}
+
+// do_challenges displays lists of challenges
+//
+// "challenges" - displays won challenges
+// "challenges area" - displays all challenges in the area
+ACMD(do_challenges)
+{
+    struct str_builder sb = str_builder_default;
+    if (!*argument) {
+        if (g_hash_table_size(ch->player_specials->saved.challenges) == 0) {
+            send_to_char(ch, "You have not met any challenges.  Try 'challenges area' to see them nearby.\r\n");
+            return;
+        }
+
+        sb_sprintf(&sb, "You know of these challenges:\r\n");
+        GList *keys = g_hash_table_get_keys(ch->player_specials->saved.challenges);
+        keys = g_list_sort(keys, (GCompareFunc)int_compare);
+        for (GList *it = keys;it;it = it->next) {
+            int chal_id = GPOINTER_TO_INT(it->data);
+            struct challenge_progress *progress = g_hash_table_lookup(ch->player_specials->saved.challenges, GINT_TO_POINTER(chal_id));
+            struct challenge *chal = g_hash_table_lookup(challenges, GINT_TO_POINTER(chal_id));
+            if (!chal) {
+                errlog("%s has invalid challenge progress with id %d", GET_NAME(ch), chal_id);
+                continue;
+            }
+            if (progress->stage >= chal->stages) {
+                sb_sprintf(&sb, "  WON  %-20s %s\r\n", chal->label, chal->desc);
+            } else if (!chal->secret) {
+                sb_sprintf(&sb, " %2d/%2d %-20s %s\r\n", progress->stage, chal->stages, chal->label, chal->desc);
+            }
+        }
+        g_list_free(keys);
+        page_string(ch->desc, sb.str);
+        return;
+    }
+
+    int zone_min = ch->in_room->zone->number * 100;
+    int zone_max = zone_min + ch->in_room->zone->top;
+    bool found = false;
+    GList *vals = g_hash_table_get_values(challenges);
+    gint by_challenge_idnum(gconstpointer a, gconstpointer b);
+
+    vals = g_list_sort(vals, (GCompareFunc)by_challenge_idnum);
+    sb_sprintf(&sb, "Available challenges in this area:\r\n");
+    for (GList *it = vals;it;it = it->next) {
+        struct challenge *chal = it->data;
+        if (chal->secret) {
+            // they don't see this until it's won.
+            // TODO: check for won secret challenges here.
+            continue;
+        }
+        if (chal->idnum < zone_min || chal->idnum > zone_max) {
+            // Not part of the zone.
+            continue;
+        }
+        found = true;
+        sb_sprintf(&sb, " %-20s %s\r\n", chal->label, chal->desc);
+    }
+    g_list_free(vals);
+    if (!found) {
+        send_to_char(ch, "There are no visible challenges available in this area.\r\n");
+        return;
+    }
     page_string(ch->desc, sb.str);
 }
 
