@@ -6229,6 +6229,33 @@ perform_set(struct creature *ch, struct creature *vict, bool is_file, int set_id
         affect_total(vict);
         break;
     case 11:
+        if (!*argument) {
+            send_to_char(ch, "Usage: set <player> challenge <label> <stage>\r\n");
+            return;
+        }
+        char *label = tmp_getword(&argument);
+        if (!*label) {
+            send_to_char(ch, "You must specify a challenge label.\r\n");
+            return;
+        }
+        if (!*argument) {
+            send_to_char(ch, "You must specify a challenge stage. (0 to remove)\r\n");
+            return;
+        }
+        int want_stage = strtol(argument, NULL, 10);
+        int cur_stage = 0;
+
+        struct challenge *chal = challenge_by_label(label, false);
+        if (!chal) {
+            send_to_char(ch, "Invalid challenge label %s.\r\n", label);
+            return;
+        }
+        struct challenge_progress *progress = g_hash_table_lookup(ch->player_specials->saved.challenges, GINT_TO_POINTER(chal->idnum));
+        if (progress) {
+            cur_stage = progress->stage;
+        }
+        update_challenge_progress(vict, chal->idnum, want_stage - cur_stage);
+        send_to_char(ch, "Okay.\r\n");
         return;
     case 12:
         if (IS_NPC(vict) || GET_LEVEL(vict) >= LVL_GRGOD) {
@@ -6798,7 +6825,7 @@ ACMD(do_set)
         {"move", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},
         {"align", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},
         {"str", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},
-        {"stradd", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},
+        {"challenges", LVL_IMMORT, PC, MISC, "AdminFull"},
         {"int", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},
         {"wis", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},
         {"dex", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},

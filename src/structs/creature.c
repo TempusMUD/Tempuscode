@@ -316,6 +316,20 @@ update_challenge_progress(struct creature *ch, int challenge_id, int amount)
         return;
     }
     struct challenge_progress *progress = g_hash_table_lookup(ch->player_specials->saved.challenges, GINT_TO_POINTER(challenge_id));
+    int new_stage = 0;
+    if (progress) {
+        new_stage = progress->stage;
+    }
+
+    new_stage += amount;
+
+    if (new_stage == 0) {
+        if (progress) {
+            g_hash_table_remove(ch->player_specials->saved.challenges, GINT_TO_POINTER(challenge_id));
+        }
+        return;
+    }
+
     if (!progress) {
         CREATE(progress, struct challenge_progress, 1);
         g_hash_table_insert(ch->player_specials->saved.challenges, GINT_TO_POINTER(challenge_id), progress);
@@ -325,7 +339,7 @@ update_challenge_progress(struct creature *ch, int challenge_id, int amount)
         return;
     }
     progress->last_update = time(NULL);
-    progress->stage += amount;
+    progress->stage = new_stage;
     if (progress->stage >= chal->stages) {
         progress->stage = chal->stages;
         send_to_char(ch, "%s%sCHALLENGE MET: %s%s\r\n",
