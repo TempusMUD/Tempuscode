@@ -304,44 +304,72 @@ player_has_tag(struct creature *ch, const char *tag)
     return g_hash_table_contains(ch->player_specials->tags, tag);
 }
 
+int
+player_challenge_progress(struct creature *ch, int challenge_id)
+{
+    if (ch->player_specials->saved.challenges == NULL) {
+        return 0;
+    }
+    struct challenge_progress *progress = g_hash_table_lookup(ch->player_specials->saved.challenges, GINT_TO_POINTER(challenge_id));
+    if (!progress) {
+        return 0;
+    }
+    return progress->stage;
+}
+
 void
-update_challenge_progress(struct creature *ch, int challenge_id, int amount)
+set_challenge_progress(struct creature *ch, struct challenge *chal, int val)
 {
     if (ch->player_specials->saved.challenges == NULL) {
         ch->player_specials->saved.challenges = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
     }
-    struct challenge *chal = g_hash_table_lookup(challenges, GINT_TO_POINTER(challenge_id));
-    if (!chal) {
-        errlog("update_challenge_progress: invalid challenge id %d", challenge_id);
-        return;
-    }
-    struct challenge_progress *progress = g_hash_table_lookup(ch->player_specials->saved.challenges, GINT_TO_POINTER(challenge_id));
-    int new_stage = 0;
-    if (progress) {
-        new_stage = progress->stage;
-    }
-
-    new_stage += amount;
-
-    if (new_stage == 0) {
+    struct challenge_progress *progress = g_hash_table_lookup(ch->player_specials->saved.challenges, GINT_TO_POINTER(chal->idnum));
+    if (val == 0) {
         if (progress) {
-            g_hash_table_remove(ch->player_specials->saved.challenges, GINT_TO_POINTER(challenge_id));
+            g_hash_table_remove(ch->player_specials->saved.challenges, GINT_TO_POINTER(chal->idnum));
         }
         return;
     }
 
     if (!progress) {
         CREATE(progress, struct challenge_progress, 1);
-        g_hash_table_insert(ch->player_specials->saved.challenges, GINT_TO_POINTER(challenge_id), progress);
+        g_hash_table_insert(ch->player_specials->saved.challenges, GINT_TO_POINTER(chal->idnum), progress);
     }
     if (progress->stage == chal->stages) {
         // Do nothing if challenge is already met.
         return;
     }
     progress->last_update = time(NULL);
-    progress->stage = new_stage;
-    if (progress->stage >= chal->stages) {
-        progress->stage = chal->stages;
+    progress->stage = val;
+
+}
+
+void
+award_challenge_progress(struct creature *ch, int challenge_id, int amount)
+{
+    struct challenge *chal = challenge_by_idnum(challenge_id);
+
+    if (!chal) {
+        errlog("update_challenge_progress: invalid challenge id %d", challenge_id);
+        return;
+    }
+
+    if (!chal->approved && !IS_IMMORT(ch) && !is_tester(ch)) {
+        // Don't award anything on unapproved challenges unless to
+        // immortals or testers.
+        return;
+    }
+
+    int progress_amt = player_challenge_progress(ch, challenge_id);
+    if (progress_amt == chal->stages) {
+        // Do nothing if challenge already met.
+        return;
+    }
+    progress_amt = MIN(progress_amt + amount, chal->stages);
+
+    set_challenge_progress(ch, chal, progress_amt);
+
+    if (progress_amt == chal->stages) {
         send_to_char(ch, "%s%sCHALLENGE MET: %s%s\r\n",
                      CCBLD(ch, C_NRM), CCYEL(ch, C_SPR),
                      chal->name, CCNRM(ch, C_SPR));

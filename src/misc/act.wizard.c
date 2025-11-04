@@ -5244,14 +5244,6 @@ show_zones(struct creature *ch, char *arg, char *value)
     page_string(ch->desc, sb.str);
 }
 
-gint
-by_challenge_idnum(gconstpointer a, gconstpointer b)
-{
-    struct challenge const *chal_a = a, *chal_b = b;
-    return (chal_a->idnum < chal_b->idnum) ? -1:
-        (chal_a->idnum > chal_b->idnum) ? 1:0;
-}
-
 #define SFC_OBJ 1
 #define SFC_MOB 2
 #define SFC_ROOM 3
@@ -6130,13 +6122,14 @@ ACMD(do_show)
             send_to_char(ch, "No challenges are defined. :(\r\n");
             return;
         }
-        sb_sprintf(&sb, "S?    ID Label                Parts Name\r\n");
+        sb_sprintf(&sb, "US    ID Label                Parts Name\r\n");
         sb_sprintf(&sb, "-- ----- -------------------- ----- -----------------------------------\r\n");
         GList *chal_list = g_hash_table_get_values(challenges);
         chal_list = g_list_sort(chal_list, (GCompareFunc)by_challenge_idnum);
         for (GList *it = chal_list;it != NULL;it = it->next) {
             struct challenge *chal = it->data;
-            sb_sprintf(&sb, "%c  %5d %-20s %5d %-35s\r\n",
+            sb_sprintf(&sb, "%c%c %5d %-20s %5d %-35s\r\n",
+                       (chal->approved) ? ' ':'*',
                        (chal->secret) ? '*':' ',
                        chal->idnum,
                        chal->label,
@@ -6242,19 +6235,15 @@ perform_set(struct creature *ch, struct creature *vict, bool is_file, int set_id
             send_to_char(ch, "You must specify a challenge stage. (0 to remove)\r\n");
             return;
         }
-        int want_stage = strtol(argument, NULL, 10);
-        int cur_stage = 0;
-
         struct challenge *chal = challenge_by_label(label, false);
+
         if (!chal) {
             send_to_char(ch, "Invalid challenge label %s.\r\n", label);
             return;
         }
-        struct challenge_progress *progress = g_hash_table_lookup(ch->player_specials->saved.challenges, GINT_TO_POINTER(chal->idnum));
-        if (progress) {
-            cur_stage = progress->stage;
-        }
-        update_challenge_progress(vict, chal->idnum, want_stage - cur_stage);
+        int stage = strtol(argument, NULL, 10);
+
+        set_challenge_progress(vict, chal, stage);
         send_to_char(ch, "Okay.\r\n");
         return;
     case 12:

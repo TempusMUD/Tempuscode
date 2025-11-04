@@ -802,6 +802,7 @@ struct player_special_data {
     struct obj_data *olc_obj;   /* which obj being edited               */
     struct creature *olc_mob;   /* which mob being edited               */
     struct shop_data *olc_shop; /* which shop being edited              */
+    struct challenge *olc_challenge; /* which shop being edited              */
     struct special_search_data *olc_srch;   /* which srch being edited */
     struct room_data *was_in_room;  /* location for linkdead people         */
     struct help_item *olc_help_item;
@@ -1224,6 +1225,7 @@ const char *CURRENCY(struct creature *ch);
 #define GET_OLC_HELP(ch)        ((ch)->player_specials->olc_help_item)
 #define GET_OLC_SRCH(ch)        ((ch)->player_specials->olc_srch)
 #define GET_OLC_HANDLER(ch)     ((ch)->player_specials->olc_handler)
+#define GET_OLC_CHALLENGE(ch)     ((ch)->player_specials->olc_challenge)
 
 #define SET_TONGUE(ch, i, pct)        \
     {(ch)->language_data.tongues[i] = pct; }

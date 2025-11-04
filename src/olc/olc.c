@@ -61,6 +61,7 @@
 #include "editor.h"
 #include "smokes.h"
 #include "strutil.h"
+#include "challenge.h"
 
 extern const char *language_names[];
 extern const char *race_language[][2];
@@ -74,7 +75,7 @@ extern const char *race_language[][2];
                   "olc exit <direction> <parameter> <value> ['one-way']\r\n" \
                   "olc rexdesc <create | remove | edit | addkey> <keywords> [new keywords\r\n"  \
                   "olc clear <room | obj | mob>\r\n"           \
-                  "olc create/destroy <room|zone|obj|mob|search> <number>\r\n" \
+                  "olc create/destroy <room|zone|obj|mob|search|challenge> <number>\r\n" \
                   "olc help [keyword]\r\n"               \
                   "olc osave\r\n"                        \
                   "olc oedit [number | 'exit']\r\n"               \
@@ -113,6 +114,9 @@ extern const char *race_language[][2];
                   "olc xedit <search trigger> <search keyword>\r\n" \
                   "olc xset <arg> <val>\r\n"  \
                   "olc xstat\r\n" \
+                  "olc cedit\r\n" \
+                  "olc cstat\r\n" \
+                  "olc cset\r\n" \
                   "olc show\r\n" \
                   "olc recalculate { obj | mob } <vnum>\r\n"
 
@@ -234,6 +238,13 @@ int do_clear_olc_mob(struct creature *ch);
 
 char *find_exdesc(char *word, struct extra_descr_data *list, bool find_exact);
 
+struct challenge * do_create_challenge(struct creature *ch, int vnum);
+bool do_destroy_challenge(struct creature *ch, int vnum);
+void do_challenge_edit(struct creature *ch, char *argument);
+void do_challenge_stat(struct creature *ch, char *argument);
+void do_challenge_set(struct creature *ch, char *argument);
+bool do_approve_challenge(struct creature *ch, char *argument);
+
 const char *olc_commands[] = {
     "rsave",                    /* save wld file */
     "rmimic",
@@ -286,6 +297,10 @@ const char *olc_commands[] = {
     "show",
     "recalculate",
     "progmimic",                /* 50 */
+    "cedit",
+    "cstat",
+    "cset",
+    "csave",
     "\n"                        /* many more to be added */
 };
 
@@ -1099,7 +1114,7 @@ ACMD(do_olc)
     case 20: /*** create ***/
         if (!*argument) {
             send_to_char(ch,
-                         "Usage: olc create <room|zone|obj|mob|help> <vnum|next>\r\n");
+                         "Usage: olc create <room|zone|obj|mob|challenge> <vnum|next>\r\n");
         } else {
             int tmp_vnum = 0;
             argument = two_arguments(argument, arg1, arg2);
@@ -1199,6 +1214,19 @@ ACMD(do_olc)
                 if (!add_path(arg2, true)) {
                     send_to_char(ch, "Path added.\r\n");
                 }
+            } else if (is_abbrev(arg1, "challenge")) {
+                if (!*arg2) {
+                    send_to_char(ch, "Create a challenge with what vnum?\r\n");
+                    return;
+                }
+                i = atoi(arg2);
+                struct challenge *chal = do_create_challenge(ch, i);
+                if (chal) {
+                    GET_OLC_CHALLENGE(ch) = chal;
+                    send_to_char(ch, "Challenge %d created.\r\nNow editing challenge %d\r\n", i, i);
+                } else {
+                    send_to_char(ch, "Challenge creation FAILED\r\n");
+                }
             } else {
                 send_to_char(ch,
                              "Usage: olc create <room|zone|obj|mob> <vnum>\r\n");
@@ -1267,6 +1295,15 @@ ACMD(do_olc)
                 send_to_char(ch, "Mobile eliminated.\r\n");
             }
 
+        } else if (is_abbrev(arg1, "challenge")) {
+            if (!*arg2) {
+                send_to_char(ch, "Create a challenge with what vnum?\r\n");
+                return;
+            }
+            i = atoi(arg2);
+            if (do_destroy_challenge(ch, i)) {
+                send_to_char(ch, "Challenge destroyed.\r\n");
+            }
         } else if (is_abbrev(arg1, "zone")) {
             send_to_char(ch, "Command not imped yet.\r\n");
         } else {
@@ -1690,6 +1727,19 @@ ACMD(do_olc)
         }
         break;
     }
+    case 51:                    /* cedit */
+        do_challenge_edit(ch, argument);
+        break;
+    case 52:                    /* cstat */
+        do_challenge_stat(ch, argument);
+        break;
+    case 53:                    /* cset */
+        do_challenge_set(ch, argument);
+        break;
+    case 54:                    /* csave */
+        save_challenges("etc/challenges.xml");
+        send_to_char(ch, "Challenges saved.\r\n");
+        break;
     default:
         send_to_char(ch, "This action is not supported yet.\r\n");
     }
@@ -2522,6 +2572,9 @@ ACMD(do_approve)
             o_m = 1;
         } else if (is_abbrev(arg1, "zone")) {
             zn = 1;
+        } else if (is_abbrev(arg1, "challenge")) {
+            do_approve_challenge(ch, arg2);
+            return;
         } else {
             send_to_char(ch, APPR_USE);
             return;

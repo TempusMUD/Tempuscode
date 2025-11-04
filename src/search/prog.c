@@ -1628,7 +1628,7 @@ DEFPROGHANDLER(award, env, evt, args)
         return;
     }
 
-    update_challenge_progress(env->target, chal->idnum, amount);
+    award_challenge_progress(env->target, chal->idnum, amount);
 }
 
 static void

@@ -20,7 +20,7 @@
 
 GHashTable *challenges = NULL;
 
-static struct challenge *
+struct challenge *
 make_challenge(void)
 {
     struct challenge *challenge;
@@ -37,6 +37,12 @@ free_challenge(struct challenge *challenge)
     free(challenge->name);
     free(challenge->desc);
     free(challenge);
+}
+
+struct challenge *
+challenge_by_idnum(int id)
+{
+    return g_hash_table_lookup(challenges, GINT_TO_POINTER(id));
 }
 
 static gboolean
@@ -85,6 +91,8 @@ load_challenge(xmlNodePtr node)
             xmlFree(txt);
         } else if (xmlMatches(child->name, "secret")) {
             challenge->secret = true;
+        } else if (xmlMatches(child->name, "approved")) {
+            challenge->approved = true;
         }
     }
 
@@ -100,7 +108,7 @@ boot_challenges(const char *path)
     if (challenges) {
         g_hash_table_remove_all(challenges);
     } else {
-        challenges = g_hash_table_new(g_direct_hash, g_direct_equal);
+        challenges = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, (GDestroyNotify)free_challenge);
     }
 
     doc = xmlParseFile(path);
@@ -147,6 +155,14 @@ boot_challenges(const char *path)
     slog("%d challenges loaded", g_hash_table_size(challenges));
 }
 
+gint
+by_challenge_idnum(gconstpointer a, gconstpointer b)
+{
+    struct challenge const *chal_a = a, *chal_b = b;
+    return (chal_a->idnum < chal_b->idnum) ? -1:
+        (chal_a->idnum > chal_b->idnum) ? 1:0;
+}
+
 static struct xmlc_node *
 xml_collect_challenges(GHashTable *challenges)
 {
@@ -154,23 +170,23 @@ xml_collect_challenges(GHashTable *challenges)
         return xml_null_node();
     }
     struct xmlc_node *node_list = NULL, *last_node = NULL;
-    GHashTableIter iter;
-    gpointer key;
-    struct challenge *val;
 
-    g_hash_table_iter_init(&iter, challenges);
-    while (g_hash_table_iter_next(&iter, &key, (gpointer)&val)) {
+    GList *chal_list = g_hash_table_get_values(challenges);
+    chal_list = g_list_sort(chal_list, (GCompareFunc)by_challenge_idnum);
+    for (GList *it = chal_list;it != NULL;it = it->next) {
+        struct challenge *chal = it->data;
         struct xmlc_node *new_node = xml_node(
             "challenge",
-            xml_int_attr("id", GPOINTER_TO_INT(key)),
-            xml_str_attr("label", val->label),
-            xml_str_attr("name", val->name),
-            xml_int_attr("stages", val->stages),
-            xml_if(val->desc && *val->desc,
+            xml_int_attr("id", chal->idnum),
+            xml_str_attr("label", chal->label),
+            xml_str_attr("name", chal->name),
+            xml_int_attr("stages", chal->stages),
+            xml_if(chal->desc && *chal->desc,
                    xml_node("description",
-                            xml_text(val->desc),
+                            xml_text(chal->desc),
                             NULL)),
-            xml_if(val->secret, xml_node("secret", NULL)),
+            xml_if(chal->secret, xml_node("secret", NULL)),
+            xml_if(chal->approved, xml_node("approved", NULL)),
             NULL);
         if (last_node) {
             last_node->next = new_node;

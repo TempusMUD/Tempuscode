@@ -91,6 +91,7 @@ check_tempus_LDADD = \
                  $(top_builddir)/src/objects/vehicle.o \
                  $(top_builddir)/src/olc/olc_mob.o \
                  $(top_builddir)/src/olc/olc.o \
+                 $(top_builddir)/src/olc/olc_challenge.o \
                  $(top_builddir)/src/olc/olc_obj.o \
                  $(top_builddir)/src/olc/olc_srch.o \
                  $(top_builddir)/src/olc/olc_wld.o \

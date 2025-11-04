@@ -92,6 +92,7 @@ ETAGSFLAGS = --regex='/^ASPELL(\\([a-zA-Z0-9_]+\\))$/\\1/' --regex='/^ACMD(\\([a
                  objects/vehicle.c \
                  olc/olc_mob.c \
                  olc/olc.c \
+                 olc/olc_challenge.c \
                  olc/olc_obj.c \
                  olc/olc_srch.c \
                  olc/olc_wld.c \
