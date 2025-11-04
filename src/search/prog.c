@@ -2457,11 +2457,11 @@ trigger_prog_dying(struct creature *owner, struct creature *killer)
     evt.phase = PROG_EVT_BEGIN;
     evt.kind = PROG_EVT_DYING;
     evt.cmd = -1;
-    evt.subject = killer;
-    evt.object = NULL;
-    evt.object_type = PROG_TYPE_NONE;
+    evt.subject = owner;
+    evt.object = killer;
+    evt.object_type = PROG_TYPE_MOBILE;
     strcpy_s(evt.args, sizeof(evt.args), "");
-    env = prog_start(PROG_TYPE_MOBILE, owner, NULL, &evt);
+    env = prog_start(PROG_TYPE_MOBILE, owner, killer, &evt);
     prog_execute(env);
 
     loop_fence -= 1;
