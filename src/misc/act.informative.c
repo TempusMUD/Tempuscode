@@ -2928,7 +2928,7 @@ ACMD(do_challenges)
     }
 
     int zone_min = ch->in_room->zone->number * 100;
-    int zone_max = zone_min + ch->in_room->zone->top;
+    int zone_max = ch->in_room->zone->top;
     bool found = false;
     GList *vals = g_hash_table_get_values(challenges);
     gint by_challenge_idnum(gconstpointer a, gconstpointer b);
