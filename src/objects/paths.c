@@ -102,7 +102,7 @@ int move_car(struct creature *ch, struct obj_data *car, int dir);
 static void
 path_move(struct path_object *o)
 {
-    if (o->phead->length != 1) {
+    if (o->phead->length == 1) {
         return;
     }
 
