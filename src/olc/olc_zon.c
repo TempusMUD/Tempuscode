@@ -3142,7 +3142,7 @@ do_zpath_cmd(struct creature *ch, char *argument)
         return;
     }
 
-    if (path_name_exists(buf2)) {
+    if (!path_name_exists(buf2)) {
         send_to_char(ch, "There is no path called '%s'.\r\n", buf2);
         return;
     }
@@ -3213,7 +3213,7 @@ do_zpath_cmd(struct creature *ch, char *argument)
     }
 
     if (!(obj = get_obj_in_list_vis(ch, buf, ch->in_room->contents))) {
-        send_to_char(ch, "You see no mob by the name of '%s' here.\r\n",
+        send_to_char(ch, "You see no object by the name of '%s' here.\r\n",
                      buf);
         return;
     }
