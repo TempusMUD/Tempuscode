@@ -2917,9 +2917,19 @@ ACMD(do_challenges)
                 continue;
             }
             if (progress->stage >= chal->stages) {
-                sb_sprintf(&sb, "  WON  %-20s %s\r\n", chal->label, chal->desc);
+                struct tm tmTime;
+                localtime_r(&progress->last_update, &tmTime);
+
+                sb_sprintf(&sb, "WON %s  %-20s %s\r\n",
+                           tmp_strftime("%Y-%m-%d", &tmTime),
+                           chal->name,
+                           chal->desc);
             } else if (!chal->secret) {
-                sb_sprintf(&sb, " %2d/%2d %-20s %s\r\n", progress->stage, chal->stages, chal->label, chal->desc);
+                sb_sprintf(&sb, "     %2d/%2d      %-20s %s\r\n",
+                           progress->stage,
+                           chal->stages,
+                           chal->name,
+                           chal->desc);
             }
         }
         g_list_free(keys);
@@ -2946,8 +2956,12 @@ ACMD(do_challenges)
             // Not part of the zone.
             continue;
         }
+        if (chal->approved && !IS_IMMORT(ch) && !is_tester(ch)) {
+            // Unapproved challenge.
+            continue;
+        }
         found = true;
-        sb_sprintf(&sb, " %-20s %s\r\n", chal->label, chal->desc);
+        sb_sprintf(&sb, " %-20s %s\r\n", chal->name, chal->desc);
     }
     g_list_free(vals);
     if (!found) {
