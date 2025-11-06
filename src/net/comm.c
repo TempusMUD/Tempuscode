@@ -990,8 +990,8 @@ enqueue_line_input(struct descriptor_data *d)
         g_string_assign(d->line, d->last_input->str);
         // Replace all instances of needle with replace
         g_string_replace(d->line, needle, replace, 0);
-    } else {
-        // Normally just copy the line into the last input
+    } else if (d->line->len != 0) {
+        // Normally just copy the line into the last input if any
         g_string_assign(d->last_input, d->line->str);
     }
 
