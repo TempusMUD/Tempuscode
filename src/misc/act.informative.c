@@ -2956,7 +2956,7 @@ ACMD(do_challenges)
             // Not part of the zone.
             continue;
         }
-        if (chal->approved && !IS_IMMORT(ch) && !is_tester(ch)) {
+        if (!chal->approved && !IS_IMMORT(ch) && !is_tester(ch)) {
             // Unapproved challenge.
             continue;
         }
