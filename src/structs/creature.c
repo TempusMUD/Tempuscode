@@ -370,6 +370,11 @@ award_challenge_progress(struct creature *ch, int challenge_id, int amount)
     set_challenge_progress(ch, chal, progress_amt);
 
     if (progress_amt == chal->stages) {
+        mlog(ROLE_ADMINBASIC,
+             MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)),
+             NRM, true,
+             "%s has met the challenge %s",
+             GET_NAME(ch), chal->name);
         send_to_char(ch, "%s%sCHALLENGE MET: %s%s\r\n",
                      CCBLD(ch, C_NRM), CCYEL(ch, C_SPR),
                      chal->name, CCNRM(ch, C_SPR));
