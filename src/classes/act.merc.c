@@ -1695,12 +1695,12 @@ ACMD(do_hamstring)
             af.owner = GET_IDNUM(ch);
             affect_to_char(vict, &af);
             WAIT_STATE(vict, 3 RL_SEC);
-            if (damage(ch, vict, weap, dam, SKILL_HAMSTRING, WEAR_LEGS)) {
+            if (damage(ch, vict, weap, dam, SKILL_HAMSTRING, WEAR_LEGS) && !is_dead(vict)) {
                 GET_POSITION(vict) = POS_RESTING;
             }
         } else {
             WAIT_STATE(vict, 2 RL_SEC);
-            if (damage(ch, vict, weap, dam / 2, SKILL_HAMSTRING, WEAR_LEGS)) {
+            if (damage(ch, vict, weap, dam / 2, SKILL_HAMSTRING, WEAR_LEGS) && !is_dead(vict)) {
                 GET_POSITION(vict) = POS_SITTING;
             }
         }
