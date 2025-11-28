@@ -969,9 +969,7 @@ DEFPROGHANDLER(force, env, evt, args)
         return;
     }
 
-    if (env->owner_type == PROG_TYPE_MOBILE) {
-        command_interpreter((struct creature *) env->target, args);
-    }
+    command_interpreter((struct creature *) env->target, args);
 }
 
 DEFPROGHANDLER(target, env, evt, args)
