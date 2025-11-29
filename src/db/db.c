@@ -2308,6 +2308,11 @@ load_zones(FILE *fl, char *zonename)
         SET_BIT(new_zone->flags, ZONE_INPLAY|ZONE_ZONE_MODIFIED);
         REMOVE_BIT(new_zone->flags, 1 << 24);
     }
+    if (IS_SET(new_zone->flags, 1 << 16)) {
+         // This was NORECALC - no longer useful
+        REMOVE_BIT(new_zone->flags, 1 << 16);
+        SET_BIT(new_zone->flags, ZONE_ZONE_MODIFIED);
+    }
     new_zone->num_players = 0;
     new_zone->idle_time = 0;
 

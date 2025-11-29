@@ -127,7 +127,5 @@ int search_block_no_lower(char *arg, const char **list, bool exact)
 __attribute__ ((nonnull));
 int fill_word_no_lower(char *argument)
 __attribute__ ((nonnull));
-void num2str(char *str, size_t size, int num)
-__attribute__ ((nonnull));
 
 #endif

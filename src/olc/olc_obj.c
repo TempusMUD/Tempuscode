@@ -170,26 +170,23 @@ save_objs(struct creature *ch, struct zone_data *zone)
     int aff_idx;
     room_num low = 0;
     room_num high = 0;
-    char fname[64];
-    char sbuf1[64], sbuf2[64], sbuf3[64], sbuf4[64];
     struct extra_descr_data *desc;
     struct obj_data *obj;
     FILE *file;
-    FILE *realfile;
 
     if (!zone) {
         errlog("save_obj() called with NULL zone");
         return false;
     }
 
-    snprintf(fname, sizeof(fname), "world/obj/%d.obj", zone->number);
+    const char *fname = tmp_sprintf("world/obj/%d.obj", zone->number);
     if ((access(fname, F_OK) >= 0) && (access(fname, W_OK) < 0)) {
         mudlog(0, BRF, true,
                "OLC: ERROR - Main object file for zone %d is read-only.",
                zone->number);
     }
 
-    snprintf(fname, sizeof(fname), "world/obj/olc/%d.obj", zone->number);
+    fname = tmp_sprintf("world/obj/olc/%d.obj", zone->number);
     if (!(file = fopen(fname, "w"))) {
         return false;
     }
@@ -243,13 +240,11 @@ save_objs(struct creature *ch, struct zone_data *zone)
         }
         fprintf(file, "~\n");
 
-        num2str(sbuf1, sizeof(sbuf1), obj->obj_flags.extra_flags);
-        num2str(sbuf2, sizeof(sbuf2), obj->obj_flags.extra2_flags);
-        num2str(sbuf3, sizeof(sbuf3), obj->obj_flags.wear_flags);
-        num2str(sbuf4, sizeof(sbuf4), obj->obj_flags.extra3_flags);
-
         fprintf(file, "%d %s %s %s %s\n", obj->obj_flags.type_flag,
-                sbuf1, sbuf2, sbuf3, sbuf4);
+                tmp_asciiflag(obj->obj_flags.extra_flags),
+                tmp_asciiflag(obj->obj_flags.extra2_flags),
+                tmp_asciiflag(obj->obj_flags.wear_flags),
+                tmp_asciiflag(obj->obj_flags.extra3_flags));
 
         for (i = 0; i < 4; i++) {
             fprintf(file, "%d", obj->obj_flags.value[i]);
@@ -301,9 +296,9 @@ save_objs(struct creature *ch, struct zone_data *zone)
 
         for (i = 0; i < 3; i++) {
             if (obj->obj_flags.bitvector[i]) {
-                num2str(sbuf1, sizeof(sbuf1), obj->obj_flags.bitvector[i]);
                 fprintf(file, "V\n");
-                fprintf(file, "%zd %s\n", (i + 1), sbuf1);
+                fprintf(file, "%zd %s\n", (i + 1),
+                        tmp_asciiflag(obj->obj_flags.bitvector[i]));
             }
         }
 
@@ -321,33 +316,11 @@ save_objs(struct creature *ch, struct zone_data *zone)
     }
 
     fprintf(file, "$\n");
+    fclose(file);
+
+    rename(fname, tmp_sprintf("world/obj/%d.obj", zone->number));
 
     slog("OLC: %s osaved %d.", GET_NAME(ch), zone->number);
-
-    snprintf(fname, sizeof(fname), "world/obj/%d.obj", zone->number);
-    realfile = fopen(fname, "w");
-    if (realfile) {
-        fclose(file);
-        snprintf(fname, sizeof(fname), "world/obj/olc/%d.obj", zone->number);
-        if (!(file = fopen(fname, "r"))) {
-            fclose(realfile);
-            errlog("Failure to reopen olc obj file.");
-            return false;
-        }
-        do {
-            tmp = fread(buf, 1, 512, file);
-            if (fwrite(buf, 1, tmp, realfile) != tmp) {
-                fclose(realfile);
-                fclose(file);
-                errlog
-                    ("Failure to duplicate olc obj file in the main wld dir.");
-                return false;
-            }
-        } while (tmp == 512);
-        fclose(realfile);
-    }
-
-    fclose(file);
 
     REMOVE_BIT(zone->flags, ZONE_OBJS_MODIFIED);
     return true;

@@ -55,8 +55,6 @@ extern int *wld_index;
 extern struct room_data *r_mortal_start_room;
 extern struct clan_data *clan_list;
 
-long asciiflag_conv(char *buf);
-
 void do_stat_object(struct creature *ch, struct obj_data *obj);
 
 char *find_exdesc(char *word, struct extra_descr_data *list, bool find_exact);
@@ -219,8 +217,7 @@ save_room(struct creature *ch, struct room_data *room, FILE *file)
         }
     }
 
-    num2str(buf, sizeof(buf), tmp);
-    fprintf(file, "%d %s %d\n", room->zone->number, buf, room->sector_type);
+    fprintf(file, "%d %s %d\n", room->zone->number, tmp_asciiflag(tmp), room->sector_type);
 
     for (i = 0; i < NUM_DIRS; i++) {
         if (room->dir_option[i]) {
@@ -248,9 +245,7 @@ save_room(struct creature *ch, struct room_data *room, FILE *file)
                 }
             }
 
-            num2str(buf, sizeof(buf), tmp);
-
-            fprintf(file, "%s %d %d\n", buf, room->dir_option[i]->key,
+            fprintf(file, "%s %d %d\n", tmp_asciiflag(tmp), room->dir_option[i]->key,
                     room->dir_option[i]->to_room ? room->dir_option[i]->
                     to_room->number : (-1));
         }

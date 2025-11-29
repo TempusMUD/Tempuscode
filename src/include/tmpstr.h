@@ -66,6 +66,9 @@ __attribute__((sentinel));
 // description whose index corresponds to a set bit in the value
 /*@shared@*/ char *tmp_printbits(int val, const char *bit_descs[]);
 
+// returns a string with the asciiflag encoding of the 32-bit value.
+/*@shared@*/ char *tmp_asciiflag(int val);
+
 // returns a string from the start_pos to the end_pos
 /*@shared@*/ char *tmp_substr(const char *str, int start_pos, int end_pos);
 

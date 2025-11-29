@@ -662,6 +662,30 @@ tmp_printbits(int val, const char *bit_descs[])
 }
 
 char *
+tmp_asciiflag(int val)
+{
+    const char *encoding = "abcdefghijklmnopqrstuvwxyzABCDEF";
+
+    if (val == 0) {
+        // Special case for the zero value.
+        return tmp_strdup("0");
+    }
+
+    // Allocate 33 bytes - 32 potential bits plus NUL
+    char *result = tmp_alloc(33);
+    char *write_pt = result;
+    const char *read_pt = encoding;
+    for (int i = 0;i < 32; i++, read_pt++) {
+        if (val & (1U << i)) {
+            *write_pt++ = *read_pt;
+        }
+
+    }
+    *write_pt++ = '\0';
+    return result;
+}
+
+char *
 tmp_substr(const char *str, int start_pos, int end_pos)
 {
     char *result;

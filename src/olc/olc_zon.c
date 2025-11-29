@@ -75,7 +75,6 @@ extern int olc_lock;
 
 extern const char *fill_words[];
 
-long asciiflag_conv(char *buf);
 static char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 
 void do_stat_object(struct creature *ch, struct obj_data *obj);
@@ -2518,28 +2517,14 @@ make_zone(int num)
     return new_zone;
 }
 
-bool
-save_zone(struct creature *ch, struct zone_data *zone)
+// Writes the zone to a file handle.
+void
+write_zone_to_file(FILE *zone_file, struct zone_data *zone)
 {
-    char fname[64], comment[MAX_TITLE_LENGTH];
-    unsigned int tmp;
+    char comment[MAX_TITLE_LENGTH];
     struct obj_data *obj;
     struct creature *mob;
     struct reset_com *zcmd = NULL;
-    FILE *zone_file, *realfile;
-
-    /* Open the zone file */
-
-    REMOVE_BIT(zone->flags, ZONE_ZONE_MODIFIED);
-
-    snprintf(fname, sizeof(fname), "world/zon/olc/%d.zon", zone->number);
-    if (!(zone_file = fopen(fname, "w"))) {
-        if (ch) {
-            send_to_char(ch, "Couldn't save %s: %s\r\n",
-                         fname, strerror(errno));
-        }
-        return false;
-    }
 
     fprintf(zone_file, "#%d\n", zone->number);
     fprintf(zone_file, "%s~\n", zone->name);
@@ -2583,134 +2568,142 @@ save_zone(struct creature *ch, struct zone_data *zone)
         fprintf(zone_file, "author: %s\n", zone->author);
     }
 
-    tmp = zone->flags;
+    // Clear modified bits so we don't save them to file.
+    const uint32_t mod_bits = (ZONE_MOBS_MODIFIED | ZONE_OBJS_MODIFIED | ZONE_ROOMS_MODIFIED | ZONE_ZONE_MODIFIED);
+    uint32_t flags = zone->flags & ~mod_bits;
 
-    num2str(buf, sizeof(buf), tmp);
     fprintf(zone_file, "%d %d %d %d %d %s %d %d %d %d\n",
             zone->top, zone->lifespan,
-            zone->reset_mode, zone->time_frame, zone->plane, buf,
+            zone->reset_mode, zone->time_frame, zone->plane, tmp_asciiflag(flags),
             zone->hour_mod, zone->year_mod, zone->pk_style, zone->dam_mod);
 
     for (zcmd = zone->cmd; zcmd; zcmd = zcmd->next) {
         if (zcmd->command == 'D') {
-            num2str(buf, sizeof(buf), zcmd->arg3);
+            // Door zone commands have a special output format.
             fprintf(zone_file, "%c %d %3d %5d %5d %5s\n",
                     zcmd->command, zcmd->if_flag, zcmd->prob,
-                    zcmd->arg1, zcmd->arg2, buf);
-        } else {
-            switch (zcmd->command) {
-            case 'M':
-                if ((mob = real_mobile_proto(zcmd->arg1))) {
-                    if (mob && mob->player.short_descr) {
-                        strcpy_s(comment, sizeof(comment), mob->player.short_descr);
-                    } else {
-                        strcpy_s(comment, sizeof(comment), " ");
-                    }
-                } else {
-                    strcpy_s(comment, sizeof(comment), " BOGUS");
-                }
-                break;
-            case 'O':
-                if ((obj = real_object_proto(zcmd->arg1))) {
-                    if (obj && obj->name) {
-                        strcpy_s(comment, sizeof(comment), obj->name);
-                    } else {
-                        strcpy_s(comment, sizeof(comment), " ");
-                    }
-                } else {
-                    strcpy_s(comment, sizeof(comment), " BOGUS");
-                }
-                break;
-            case 'E':
-            case 'I':
-                if ((obj = real_object_proto(zcmd->arg1))) {
-                    if (obj && obj->name) {
-                        strcpy_s(comment, sizeof(comment), obj->name);
-                    } else {
-                        strcpy_s(comment, sizeof(comment), " ");
-                    }
-                } else {
-                    strcpy_s(comment, sizeof(comment), " BOGUS");
-                }
-                break;
-            case 'P':
-                if ((obj = real_object_proto(zcmd->arg1))) {
-                    if (obj && obj->name) {
-                        strcpy_s(comment, sizeof(comment), obj->name);
-                    } else {
-                        strcpy_s(comment, sizeof(comment), " ");
-                    }
-                } else {
-                    strcpy_s(comment, sizeof(comment), " BOGUS");
-                }
-                break;
-            case 'V':
-                if ((obj = real_object_proto(zcmd->arg3))
-                    && path_vnum_exists(zcmd->arg1)) {
-                    strcpy_s(comment, sizeof(comment), path_name_by_vnum(zcmd->arg1));
-                } else {
-                    strcpy_s(comment, sizeof(comment), " BOGUS");
-                }
-                break;
-            case 'W':
-                if ((mob = real_mobile_proto(zcmd->arg3))
-                    && path_vnum_exists(zcmd->arg1)) {
-                    strcpy_s(comment, sizeof(comment), path_name_by_vnum(zcmd->arg1));
-                } else {
-                    strcpy_s(comment, sizeof(comment), " BOGUS");
-                }
-                break;
-            case 'G':
-                if ((obj = real_object_proto(zcmd->arg1))) {
-                    if (obj->name) {
-                        strcpy_s(comment, sizeof(comment), obj->name);
-                    } else {
-                        strcpy_s(comment, sizeof(comment), " ");
-                    }
-                } else {
-                    strcpy_s(comment, sizeof(comment), " BOGUS");
-                }
-                break;
-            default:
-                strcpy_s(comment, sizeof(comment), " ---");
-                break;
-            }
-
-            fprintf(zone_file, "%c %d %3d %5d %5d %5d        %s\n",
-                    zcmd->command, zcmd->if_flag, zcmd->prob,
-                    zcmd->arg1, zcmd->arg2, zcmd->arg3, comment);
+                    zcmd->arg1, zcmd->arg2, tmp_asciiflag(zcmd->arg3));
+            continue;
         }
+
+        switch (zcmd->command) {
+        case 'M':
+            if ((mob = real_mobile_proto(zcmd->arg1))) {
+                if (mob && mob->player.short_descr) {
+                    strcpy_s(comment, sizeof(comment), mob->player.short_descr);
+                } else {
+                    strcpy_s(comment, sizeof(comment), " ");
+                }
+            } else {
+                strcpy_s(comment, sizeof(comment), " BOGUS");
+            }
+            break;
+        case 'O':
+            if ((obj = real_object_proto(zcmd->arg1))) {
+                if (obj && obj->name) {
+                    strcpy_s(comment, sizeof(comment), obj->name);
+                } else {
+                    strcpy_s(comment, sizeof(comment), " ");
+                }
+            } else {
+                strcpy_s(comment, sizeof(comment), " BOGUS");
+            }
+            break;
+        case 'E':
+        case 'I':
+            if ((obj = real_object_proto(zcmd->arg1))) {
+                if (obj && obj->name) {
+                    strcpy_s(comment, sizeof(comment), obj->name);
+                } else {
+                    strcpy_s(comment, sizeof(comment), " ");
+                }
+            } else {
+                strcpy_s(comment, sizeof(comment), " BOGUS");
+            }
+            break;
+        case 'P':
+            if ((obj = real_object_proto(zcmd->arg1))) {
+                if (obj && obj->name) {
+                    strcpy_s(comment, sizeof(comment), obj->name);
+                } else {
+                    strcpy_s(comment, sizeof(comment), " ");
+                }
+            } else {
+                strcpy_s(comment, sizeof(comment), " BOGUS");
+            }
+            break;
+        case 'V':
+            if ((obj = real_object_proto(zcmd->arg3))
+                && path_vnum_exists(zcmd->arg1)) {
+                strcpy_s(comment, sizeof(comment), path_name_by_vnum(zcmd->arg1));
+            } else {
+                strcpy_s(comment, sizeof(comment), " BOGUS");
+            }
+            break;
+        case 'W':
+            if ((mob = real_mobile_proto(zcmd->arg3))
+                && path_vnum_exists(zcmd->arg1)) {
+                strcpy_s(comment, sizeof(comment), path_name_by_vnum(zcmd->arg1));
+            } else {
+                strcpy_s(comment, sizeof(comment), " BOGUS");
+            }
+            break;
+        case 'G':
+            if ((obj = real_object_proto(zcmd->arg1))) {
+                if (obj->name) {
+                    strcpy_s(comment, sizeof(comment), obj->name);
+                } else {
+                    strcpy_s(comment, sizeof(comment), " ");
+                }
+            } else {
+                strcpy_s(comment, sizeof(comment), " BOGUS");
+            }
+            break;
+        default:
+            strcpy_s(comment, sizeof(comment), " ---");
+            break;
+        }
+
+        fprintf(zone_file, "%c %d %3d %5d %5d %5d        %s\n",
+                zcmd->command, zcmd->if_flag, zcmd->prob,
+                zcmd->arg1, zcmd->arg2, zcmd->arg3, comment);
     }
 
     fprintf(zone_file, "*\n");
     fprintf(zone_file, "$\n");
+}
 
-    slog("OLC: %s zsaved %d.", GET_NAME(ch), zone->number);
+bool
+save_zone(struct creature *ch, struct zone_data *zone)
+{
+    FILE *zone_file;
 
-    snprintf(fname, sizeof(fname), "world/zon/%d.zon", zone->number);
-    realfile = fopen(fname, "w");
-    if (realfile) {
-        fclose(zone_file);
-        snprintf(fname, sizeof(fname), "world/zon/olc/%d.zon", zone->number);
-        if (!(zone_file = fopen(fname, "r"))) {
-            errlog("Failure to reopen olc zon file.");
-            fclose(realfile);
-            return false;
+    /* Open the zone file */
+
+    char *fname = tmp_sprintf("world/zon/olc/%d.zon", zone->number);
+    if (!(zone_file = fopen(fname, "w"))) {
+        if (ch) {
+            send_to_char(ch, "Couldn't save %s: %s\r\n",
+                         fname, strerror(errno));
         }
-        do {
-            tmp = fread(buf, 1, 512, zone_file);
-            if (fwrite(buf, 1, tmp, realfile) != tmp) {
-                fclose(realfile);
-                fclose(zone_file);
-                errlog
-                    ("Failure to duplicate olc zon file in the main wld dir.");
-                return false;
-            }
-        } while (tmp == 512);
-        fclose(realfile);
+        return false;
     }
 
-    fclose(zone_file);
+    write_zone_to_file(zone_file, zone);
+
+    int err = fclose(zone_file);
+    if (err < 0) {
+        errlog("Could not write zone %d file: %s", zone->number, strerror(errno));
+        return false;
+    }
+
+    rename(fname, tmp_sprintf("world/zon/%d.zon", zone->number));
+    REMOVE_BIT(zone->flags, ZONE_ZONE_MODIFIED);
+    if (ch) {
+        slog("OLC: Zone %d saved by %s", zone->number, GET_NAME(ch));
+    } else {
+        slog("OLC: Zone %d saved", zone->number);
+    }
 
     return true;
 }

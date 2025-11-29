@@ -107,7 +107,6 @@ int prototype_obj_value(struct obj_data *obj);
 int choose_material(struct obj_data *obj);
 int set_maxdamage(struct obj_data *obj);
 
-long asciiflag_conv(char *buf);
 void build_player_table(void);
 void show_social_messages(struct creature *ch, char *arg);
 void perform_oset(struct creature *ch, struct obj_data *obj_p,
