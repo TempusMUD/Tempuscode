@@ -5204,12 +5204,6 @@ show_zones(struct creature *ch, char *arg, char *value)
                 build_print_zone(ch, zone, &sb);
             }
         }
-    } else if (strcasecmp(value, "norecalc") == 0) {
-        for (zone = zone_table; zone; zone = zone->next) {
-            if (ZONE_FLAGGED(zone, ZONE_NORECALC)) {
-                build_print_zone(ch, zone, &sb);
-            }
-        }
     } else if (strcasecmp(value, "noauthor") == 0) {
         for (zone = zone_table; zone; zone = zone->next) {
             if (!zone->author || !*zone->author) {
@@ -8093,9 +8087,6 @@ ACMD(do_coderutil)
     } else if (streq(token, "sunday")) {
         last_sunday_time = time(NULL);
         send_to_char(ch, "Ok, it's now Sunday (kinda).\r\n");
-    } else if (streq(token, "recalc")) {
-        token = tmp_getword(&argument);
-        recalc_all_mobs(ch, token);
     } else if (streq(token, "cryobackfill")) {
         void autocryo(bool);
 

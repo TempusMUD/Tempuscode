@@ -37,7 +37,6 @@
 void set_physical_attribs(struct creature *ch);
 // recalculates the given mob prototype's statistics based on it's current level.
 void recalculate_based_on_level(struct creature *mob_p);
-void recalc_all_mobs(struct creature *ch, const char *argument);
 
 bool CAN_EDIT_ZONE(struct creature *ch, struct zone_data *zone);
 bool OLC_EDIT_OK(struct creature *ch, struct zone_data *zone, int bits);
