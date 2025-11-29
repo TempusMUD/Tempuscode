@@ -144,7 +144,7 @@ void flow_room(void);
 void editor(struct descriptor_data *d, char *buffer);
 void perform_violence(void);
 void show_string(struct descriptor_data *d);
-void autosave_zones(int SAVE_TYPE);
+void autosave_zones(void);
 void mem_cleanup(void);
 void retire_trails(void);
 void set_desc_state(enum cxn_state state, struct descriptor_data *d);
@@ -198,7 +198,7 @@ init_game(void)
         close_socket(descriptor_list);
     }
 
-    autosave_zones(ZONE_RESETSAVE);
+    autosave_zones();
     collect_housing_rent();
     save_all_players();
     save_houses();
@@ -363,7 +363,7 @@ update_suppress_output(__attribute__ ((unused)) gpointer ignore)
 gboolean
 temp_autosave_zones(__attribute__ ((unused)) gpointer ignore)
 {
-    autosave_zones(ZONE_AUTOSAVE);
+    autosave_zones();
     return true;
 }
 

@@ -2302,6 +2302,12 @@ load_zones(FILE *fl, char *zonename)
     }
 
     new_zone->flags = asciiflag_conv(flags);
+    // TODO: remove when production zones are all updated.
+    if (IS_SET(new_zone->flags, 1 << 24)) {
+        // Move INPLAY bit
+        SET_BIT(new_zone->flags, ZONE_INPLAY|ZONE_ZONE_MODIFIED);
+        REMOVE_BIT(new_zone->flags, 1 << 24);
+    }
     new_zone->num_players = 0;
     new_zone->idle_time = 0;
 

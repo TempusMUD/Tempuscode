@@ -2786,13 +2786,12 @@ do_create_zone(struct creature *ch, int num)
 }
 
 void
-autosave_zones(int SAVE_TYPE)
+autosave_zones(void)
 {
     struct zone_data *zone;
 
     for (zone = zone_table; zone; zone = zone->next) {
-        if (!ZONE_FLAGGED(zone, ZONE_LOCKED)
-            && ZONE_FLAGGED(zone, SAVE_TYPE & ZONE_ZONE_MODIFIED)) {
+        if (!ZONE_FLAGGED(zone, ZONE_LOCKED) && ZONE_FLAGGED(zone, ZONE_ZONE_MODIFIED)) {
             if (save_zone(NULL, zone) == 0) {
                 errlog("Could not save zone : %s\n", zone->name);
             }

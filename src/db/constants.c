@@ -362,8 +362,8 @@ const char *zone_pk_names[] = {
 
 /* Zone flags */
 const char *zone_flag_names[] = {
-    "autosave",
-    "resetsave",
+    "inplay",
+    "1",
     "notifyowner",
     "locked",
     "nomagic",
@@ -386,7 +386,7 @@ const char *zone_flag_names[] = {
     "objs_appr",
     "rooms_appr",
     "zcmds_appr",
-    "inplay",
+    "24",
     "mobs_mod",                 /* 25 */
     "objs_mod",
     "rms_mod",
@@ -396,8 +396,8 @@ const char *zone_flag_names[] = {
 
 /* Zone flags */
 const char *zone_flags[] = {
-    "AUTOSAVE",
-    "RESETSAVE",
+    "INPLAY",
+    "1",
     "NOTIFYOWNER",
     "LOCKED",
     "!MAGIC",
@@ -412,7 +412,7 @@ const char *zone_flags[] = {
     "PAUSED",
     "EVILAMBIENCE",
     "GOODAMBIENCE",
-    "NORECALC",
+    "16",
     "17",
     "18",
     "SEARCH_APPR",
@@ -420,7 +420,7 @@ const char *zone_flags[] = {
     "OBJS_APPR",
     "ROOMS_APPR",
     "ZCMDS_APPR",
-    "INPLAY",
+    "24",
     "MOBS_MOD",                 /* 25 */
     "OBJS_MOD",
     "RMS_MOD",

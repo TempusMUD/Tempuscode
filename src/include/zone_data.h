@@ -14,9 +14,8 @@
                              && !ZONE_FLAGGED(zone, ZONE_SEARCH_APPROVED) \
                              && !ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED))
 
-/* Zone flags */
-#define ZONE_AUTOSAVE           (1 << 0)
-#define ZONE_RESETSAVE          (1 << 1)
+// Zone flags
+#define ZONE_INPLAY             (1 << 0)
 #define ZONE_NOTIFYOWNER        (1 << 2)
 #define ZONE_LOCKED             (1 << 3)
 #define ZONE_NOMAGIC            (1 << 4)
@@ -32,12 +31,13 @@
 #define ZONE_EVIL_AMBIENCE      (1 << 14)
 #define ZONE_GOOD_AMBIENCE      (1 << 15)
 #define NUM_ZONE_FLAGS          16
+// Approval flags can't be set directly, but with the approve command.
 #define ZONE_SEARCH_APPROVED    (1 << 19)
 #define ZONE_MOBS_APPROVED      (1 << 20)
 #define ZONE_OBJS_APPROVED      (1 << 21)
 #define ZONE_ROOMS_APPROVED     (1 << 22)
 #define ZONE_ZCMDS_APPROVED     (1 << 23)
-#define ZONE_INPLAY             (1 << 24)
+// Modified flags are an internal detail.
 #define ZONE_MOBS_MODIFIED      (1 << 25)
 #define ZONE_OBJS_MODIFIED      (1 << 26)
 #define ZONE_ROOMS_MODIFIED     (1 << 27)
