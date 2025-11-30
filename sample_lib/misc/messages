@@ -105,6 +105,22 @@ Did you really expect $M to suffer?
 $n fruitlessly tries to dispel you.
 $n is stupid...
 
+* Earthquake
+M
+ 23
+$N is smashed into a pulp by your earthquake!
+You are smashed into a pulp by the earthquake!
+$n is smashed into a pulp by an earthquake!
+Your earthquake fails to damage $N.
+$n's earthquake fails to damage you.
+$n's earthquake fails to damage $N.
+$N is struck hard by your earthquake!
+You are struck hard by the earthquake!
+$n is struck hard by an earthquake!
+$N barely notices the earthquake moving underneath $M.
+You barely notice $n's earthquake.
+$N barely notices $n's earthquake.
+
 * Energy Drain
 M
 25
@@ -472,6 +488,22 @@ Thorns pop out of $n's skin effortlessly.
 #
 $n chuckles as thorns effortlessly pop out of $s skin.
 
+* Dragons Breath
+M
+ 162
+You blast $N's body into ash with your fiery breath!
+Your body is blasted to ash by the fiery breath of $n!
+$n blasts $N to ash with $s fiery breath!
+$N dodges your jet of fiery breath!
+$n breathes fire at you, but you leap aside!
+$N dodges a jet of fiery breath from $n!
+You blast $N with a jet of fiery breath.
+$n blasts you full force with $s fiery breath!
+$N staggers under a blast of flame as $n breathes on $M!
+$N sneers at your offensive breath.
+$n warms you with a breath of fire.
+$n warms $N with $s fiery breath.
+
 * Psychic Surge
 M
  224
@@ -631,6 +663,22 @@ $N screams in agony as $n oxidizes $S flesh!
 You can't oxidize a god, you FOOL!
 $n tries to oxidize you! -- Waste 'em!
 $n stupidly tries to oxidize the flesh of $N!
+
+* Fission Blast
+M
+ 316
+$N turns to dust from your fission blast!
+You turn to dust under the searing heat of $n's fission blast!
+$N is seared into dust from $n's fission blast!
+$N avoids your fission blast!
+You barely avoid $n's fission blast!
+$N barely avoids $n's fission blast!
+$N screams as $E withstands the power of a fission blast!
+You scream as you withstand the power of a fission blast!
+$N screams as $E withstands the power of a fission blast!
+$N looks patronizingly at your weak fission blast.
+$n tries to fission blast you, but you are unimpressed.
+$N looks patronizingly at $n's weak fission blast.
 
 * Entropy field
 M
@@ -2232,6 +2280,22 @@ $N yowls in pain as the boiling pitch scorches $M!
 pitch miss victim - should never see.
 pitch miss room - should never see.
 
+* Falling
+M
+ 756
+#
+You slam into the ground and feel no more.
+$N slams into the ground with a disgusting splash.
+#
+You slam into the ground and dust yourself off.
+$N slams into the ground and dusts $mself off.
+#
+You hit the ground hard!  Ouch!
+$N hits the ground hard!
+#
+You slam into the ground and laugh it off.
+$N slams into the ground and laughs it off.
+
 * Holyocean
 M
  757
@@ -2812,6 +2876,22 @@ The great $N sends you a piercing look, OOPS!!
 You return $n's pierce with a piercing look, hmmm...
 $N returns $n's pierce with a piercing look, hmmm...
 
+* Blast
+M
+ 812
+You blast $N's life right out of $S body!
+$n blasts your life right out of your body!
+$n blasts $N's life right out of $S body!
+You miss your blast at $N.
+$n misses $s blast at you.
+$n misses $s blast at $N.
+You blast $N!
+$n blasts you!
+$n blasts $N!
+$n's pathetic blast doesn't affect you.
+Your pathetic blast doesn't affect $N at all.
+$n's pathetic blast leaves $N unaffected.
+
 *Punch
 M
  813
@@ -2859,6 +2939,53 @@ $n tries to zap $N, but hits the ground instead!
 Umm, shooting at gods is very stupid.
 $n tries to blast you with $p!
 $n blasts at $N with $p!  What a moron!
+
+* Ripping attack
+M
+ 816
+You rip $N several new ones!
+$n rips you several new ones!
+$n rips $N several new ones!
+You rip up the air next to $N, missing completely.
+$n rips the air next to you, missing completely!
+$n rips the air next to $N, missing completely!
+You rip into $N!
+$n rips into your body!
+$n rips into $N's body!
+$N scoffs at your feeble attempt to rip $M.
+You scoff at $n's feeble attempt to rip you.
+$N scoffs at $n's feeble attempt to rip $M.
+
+* Chopping attack
+M
+ 817
+You chop up $N into little pieces!
+$n chops you up into little pieces!
+$n chops $N up into little pieces!
+You miss your chop at $N.
+$n misses $s chop at you.
+$n misses $s chop at $N.
+You chop into $N!
+$n chops into you!
+$n chops into $N!
+You give $N a pork chop.
+$n gives you a pork chop.
+$n gives $N a pork chop.
+
+* Laser attacks
+M
+ 820
+Your laser burns a hole right through $N.
+$n's laser burns a hole right through you!
+$n's laser burns a hole right through $N!
+$n's laser passes harmlessly by you.
+$n's laser passes harmlessly by $N.
+You hit $N with a laser beam!  Pew pew!
+$n hits you with a laser beam!  It burns!
+$n hits $N with a laser beam!
+Your laser passes right through $N without a mark.
+The laser passes right through you without a mark.
+$n's laser passes right through $N without a mark.
 
 * Lightning gun special chained attack
 M
