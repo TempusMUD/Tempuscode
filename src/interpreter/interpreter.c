@@ -1460,6 +1460,7 @@ struct command_info cmd_info[] = {
     {"wail", POS_RESTING, do_say, 0, 0, 0, 0},
     {"wait", POS_RESTING, do_action, 0, 0, 0, 0},
     {"waiting", POS_RESTING, do_action, 0, 0, 0, 0},
+    {"walk", POS_RESTING, do_move, 0, SCMD_MOVE, 0, 0},
     {"wave", POS_RESTING, do_action, 0, 0, 0, 0},
     {"warcry", POS_RESTING, do_action, 0, 0, 0, 0},
     {"wear", POS_RESTING, do_wear, 0, 0, 0, 0},

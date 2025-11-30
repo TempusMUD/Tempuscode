@@ -1542,7 +1542,6 @@ ACMD(do_move)
      * It cannot be done in perform_move because perform_move is called
      * by other functions which do not require the remapping.
      */
-    int dir = -1;
     char arg1[MAX_INPUT_LENGTH];
 
     if (subcmd != SCMD_MOVE && subcmd != SCMD_JUMP && subcmd != SCMD_CRAWL) {
@@ -1552,14 +1551,11 @@ ACMD(do_move)
 
     argument = one_argument(argument, arg1);
     if (!*arg1) {
-        if (subcmd == SCMD_MOVE) {
-            do_gen_points(ch, arg1, cmd, subcmd);
-        } else {
-            send_to_char(ch, "In which direction?\r\n");
-        }
+        send_to_char(ch, "In which direction?\r\n");
         return;
     }
-    if ((dir = search_block(arg1, dirs, false)) < 0) {
+    int dir = search_block(arg1, dirs, false);
+    if (dir < 0) {
         send_to_char(ch, "'%s' is not a valid direction.\r\n", arg1);
         return;
     }

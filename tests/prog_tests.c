@@ -58,7 +58,7 @@ START_TEST(test_prog_compile_prog)
     struct cmd_arg want[] = {
         { PROG_CMD_AFTER, "" },
         { PROG_CMD_CLRCOND, "" },
-        { PROG_CMD_CMPCMD, "\xde\x03" },
+        { PROG_CMD_CMPCMD, "\xdf\x03" },
         { PROG_CMD_CONDNEXTHANDLER, "" },
         { PROG_CMD_DO, "say hey!" },
         { PROG_CMD_ENDOFPROG, "" },
