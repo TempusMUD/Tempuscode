@@ -2380,7 +2380,7 @@ drag_char(struct creature *ch, struct creature *vict, int dir)
         return;
     }
 
-    if (ch->in_room->zone->pk_style != ZONE_CHAOTIC_PK && GET_LEVEL(ch) < LVL_AMBASSADOR) {
+    if (IS_PC(vict) && !IS_IMMORT(ch) && ch->in_room->zone->pk_style != ZONE_CHAOTIC_PK) {
         act("You are unable to drag players except in CPK areas.", false, ch, NULL, vict, TO_CHAR);
         return;
     }
