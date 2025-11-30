@@ -1338,6 +1338,13 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
     }
 }
 
+static bool display_miss_is_miss = false;
+bool
+should_display_miss(struct creature *ch, struct obj_data *obj, void *vict_obj, struct creature *to, int mode)
+{
+    return display_miss_is_miss && PRF_FLAGGED(to, PRF_GAGMISS);
+}
+
 /*
  * message for doing damage with a spell or skill
  *  C3.0: Also used for weapon damage on miss and death blows
@@ -1363,7 +1370,6 @@ skill_message(int dam, struct creature *ch, struct creature *vict,
 
     // Log an error if no message was found
     if (!msg) {
-
         return true;
     }
     // occasionally behead while slashing
@@ -1374,94 +1380,56 @@ skill_message(int dam, struct creature *ch, struct creature *vict,
         corpse_state = 0;
     }
 
-    if (!IS_NPC(vict) && GET_LEVEL(vict) >= LVL_AMBASSADOR &&
-        (!PLR_FLAGGED(vict, PLR_MORTALIZED) || dam == 0)) {
-        act(msg->god_msg.attacker_msg, false, ch, weapon, vict, TO_CHAR);
-        act(msg->god_msg.victim_msg, false, ch, weapon, vict, TO_VICT);
-        act(msg->god_msg.room_msg, false, ch, weapon, vict, TO_NOTVICT);
-    } else if (dam != 0) {
-        if (GET_POSITION(vict) == POS_DEAD) {
-            if (ch) {
-                act(msg->die_msg.room_msg, false, ch, weapon, vict,
-                    TO_NOTVICT | TO_VICT_RM);
-                if (ch != vict &&
-                    find_distance(ch->in_room, vict->in_room) < 3) {
-                    send_to_char(ch, "%s", CCYEL(ch, C_NRM));
-                    const char *emit = msg->die_msg.attacker_msg;
-                    if (PRF2_FLAGGED(ch, PRF2_SHOW_DAM)) {
-                        emit = tmp_sprintf("%s [%d]", emit, dam);
-                    }
-                    act(emit, false, ch, weapon,
-                        vict, TO_CHAR);
-                    send_to_char(ch, "%s", CCNRM(ch, C_NRM));
-                }
-            }
-
-            send_to_char(vict, "%s", CCRED(vict, C_NRM));
-            const char *emit = msg->die_msg.victim_msg;
-            if (PRF2_FLAGGED(vict, PRF2_SHOW_DAM)) {
-                emit = tmp_sprintf("%s [%d]", emit, dam);
-            }
-            act(emit, false, ch, weapon, vict,
-                TO_VICT | TO_SLEEP);
-            send_to_char(vict, "%s", CCNRM(vict, C_NRM));
-
-        } else {
-            if (ch) {
-                act(msg->hit_msg.room_msg, false, ch, weapon, vict,
-                    TO_NOTVICT | TO_VICT_RM);
-                if (ch != vict && ch->in_room == vict->in_room) {
-                    send_to_char(ch, "%s", CCYEL(ch, C_NRM));
-                    const char *emit = msg->hit_msg.attacker_msg;
-                    if (PRF2_FLAGGED(ch, PRF2_SHOW_DAM)) {
-                        emit = tmp_sprintf("%s [%d]", emit, dam);
-                    }
-                    act(emit, false, ch, weapon,
-                        vict, TO_CHAR);
-                    send_to_char(ch, "%s", CCNRM(ch, C_NRM));
-                }
-            }
-
-            send_to_char(vict, "%s", CCRED(vict, C_NRM));
-            const char *emit = msg->hit_msg.victim_msg;
-            if (PRF2_FLAGGED(vict, PRF2_SHOW_DAM)) {
-                emit = tmp_sprintf("%s [%d]", emit, dam);
-            }
-            act(emit, false, ch, weapon, vict,
-                TO_VICT | TO_SLEEP);
-            send_to_char(vict, "%s", CCNRM(vict, C_NRM));
-
-        }
-    } else if (ch != vict) {    /* Dam == 0 */
-        if (ch && (!IS_WEAPON(attacktype)
-                   || !PRF_FLAGGED(ch, PRF_GAGMISS))) {
-            if (ch->in_room == vict->in_room) {
-                send_to_char(ch, "%s", CCYEL(ch, C_NRM));
-                const char *emit = msg->miss_msg.attacker_msg;
-                if (PRF2_FLAGGED(ch, PRF2_SHOW_DAM)) {
-                    emit = tmp_sprintf("%s [%d]", emit, dam);
-                }
-                act(emit, false, ch, weapon, vict,
-                    TO_CHAR);
-                send_to_char(ch, "%s", CCNRM(ch, C_NRM));
-            }
-
-            act(msg->miss_msg.room_msg, false, ch, weapon, vict,
-                TO_NOTVICT | TO_VICT_RM);
-        }
-
-        if (!IS_WEAPON(attacktype)
-            || !PRF_FLAGGED(vict, PRF_GAGMISS)) {
-            send_to_char(vict, "%s", CCRED(vict, C_NRM));
-            const char *emit = msg->miss_msg.victim_msg;
-            if (PRF2_FLAGGED(vict, PRF2_SHOW_DAM)) {
-                emit = tmp_sprintf("%s [%d]", emit, dam);
-            }
-            act(emit, false, ch, weapon, vict,
-                TO_VICT | TO_SLEEP);
-            send_to_char(vict, "%s", CCNRM(vict, C_NRM));
-        }
+    // Determine correct set of messages to send.
+    struct msg_type *msgset = NULL;
+    if (GET_POSITION(vict) == POS_DEAD) {
+        // Kill messages
+        msgset = &msg->die_msg;
+    } else if (dam > 0) {
+        // Hit messages
+        msgset = &msg->hit_msg;
+    } else if (IS_IMMORT(vict)) {
+        // God miss messages
+        msgset = &msg->god_msg;
+    } else {
+        // Regular miss messages
+        msgset = &msg->miss_msg;
     }
+
+    char *attacker_msg = msgset->attacker_msg;
+    char *victim_msg = msgset->victim_msg;
+    char *room_msg = msgset->room_msg;
+
+    if (ch && attacker_msg) {
+        attacker_msg = tmp_sprintf("&y%s%s&n", attacker_msg,
+                                   (PRF2_FLAGGED(ch, PRF2_SHOW_DAM) ?
+                                    tmp_sprintf(" [%d]", dam):""));
+    }
+    if (victim_msg) {
+        victim_msg = tmp_sprintf("&r%s%s&n", victim_msg,
+                                 (PRF2_FLAGGED(vict, PRF2_SHOW_DAM) ?
+                                  tmp_sprintf(" [%d]", dam):""));
+    }
+
+    // set up miss flag for should_display_miss for respecting gagmiss.
+    display_miss_is_miss = (dam == 0 && IS_WEAPON(attacktype));
+
+    // Attackers only see their damage when in same room.  (or close --
+    // I think the find_distance() call may be for sniping messages)
+    if (ch
+        && ch != vict
+        && find_distance(ch->in_room, vict->in_room) < 3) {
+
+        act_if(attacker_msg ? attacker_msg:room_msg,
+               false, ch, weapon, vict, TO_CHAR,
+               should_display_miss);
+    }
+
+    act_if(victim_msg, false, ch, weapon, vict, TO_VICT,
+           should_display_miss);
+    act_if(room_msg, false, ch, weapon, vict, TO_NOTVICT | TO_VICT_RM,
+           should_display_miss);
+
     if (BLOODLET(vict, dam, attacktype)) {
         blood_spray(ch, vict, weapon, dam, attacktype);
     }
