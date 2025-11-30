@@ -165,6 +165,14 @@ is_named_role_member(struct creature *ch, const char *role_name)
         return false;
     }
 
+    if (role_name == ROLE_EVERYONE) {
+        return true;
+    }
+
+    if (role_name == ROLE_NOONE) {
+        return false;
+    }
+
     role = role_by_name(role_name);
     if (!role) {
         return false;
