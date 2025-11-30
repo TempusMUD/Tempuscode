@@ -1543,24 +1543,35 @@ ACMD(do_transmute)
     WAIT_STATE(ch, 2 RL_SEC);
 }
 
-struct obj_data *
+static bool
+is_hamstring_weapon(struct obj_data *obj)
+{
+    if (!IS_OBJ_TYPE(obj, ITEM_WEAPON)) {
+        return false;
+    }
+    int dam_type = GET_OBJ_VAL(obj, 3) + TYPE_HIT;
+
+    return (dam_type == TYPE_SLASH || dam_type == TYPE_CLAW || dam_type == TYPE_RIP);
+}
+
+static struct obj_data *
 find_hamstring_weapon(struct creature *ch)
 {
     struct obj_data *weap = NULL;
-    if ((weap = GET_EQ(ch, WEAR_WIELD)) && is_slashing_weapon(weap)) {
+    if ((weap = GET_EQ(ch, WEAR_WIELD)) && is_hamstring_weapon(weap)) {
         return weap;
-    } else if ((weap = GET_EQ(ch, WEAR_WIELD_2)) && is_slashing_weapon(weap)) {
+    } else if ((weap = GET_EQ(ch, WEAR_WIELD_2)) && is_hamstring_weapon(weap)) {
         return weap;
-    } else if ((weap = GET_EQ(ch, WEAR_HANDS)) && is_slashing_weapon(weap)) {
+    } else if ((weap = GET_EQ(ch, WEAR_HANDS)) && is_hamstring_weapon(weap)) {
         return weap;
-    } else if ((weap = GET_EQ(ch, WEAR_ARMS)) && is_slashing_weapon(weap)) {
+    } else if ((weap = GET_EQ(ch, WEAR_ARMS)) && is_hamstring_weapon(weap)) {
         return weap;
     } else if ((weap = GET_IMPLANT(ch, WEAR_HANDS))
-               && is_slashing_weapon(weap)
+               && is_hamstring_weapon(weap)
                && GET_EQ(ch, WEAR_HANDS) == NULL) {
         return weap;
     } else if ((weap = GET_IMPLANT(ch, WEAR_ARMS))
-               && is_slashing_weapon(weap)
+               && is_hamstring_weapon(weap)
                && GET_EQ(ch, WEAR_ARMS) == NULL) {
         return weap;
     }
