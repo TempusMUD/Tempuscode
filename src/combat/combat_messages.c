@@ -1342,7 +1342,7 @@ static bool display_miss_is_miss = false;
 bool
 should_display_miss(struct creature *ch, struct obj_data *obj, void *vict_obj, struct creature *to, int mode)
 {
-    return display_miss_is_miss && PRF_FLAGGED(to, PRF_GAGMISS);
+    return !(display_miss_is_miss && PRF_FLAGGED(to, PRF_GAGMISS));
 }
 
 /*
