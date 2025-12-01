@@ -2044,15 +2044,16 @@ act_if(const char *str, bool hide_invisible, struct creature *ch,
     }
 
     if (type == TO_CHAR) {
-        if (ch && SENDOK(ch)) {
+        if (ch && SENDOK(ch) && pred(ch, obj, vict_obj, ch, 0)) {
             perform_act(str, ch, obj, vict_obj, ch, 0);
         }
         return;
     }
     if (type == TO_VICT) {
-        if (vict_obj && SENDOK((struct creature *)vict_obj)) {
-            perform_act(str, ch, obj, vict_obj, (struct creature *)vict_obj,
-                        0);
+        if (vict_obj
+            && SENDOK((struct creature *)vict_obj)
+            && pred(ch, obj, vict_obj, (struct creature *)vict_obj, 0)) {
+            perform_act(str, ch, obj, vict_obj, (struct creature *)vict_obj, 0);
         }
         return;
     }
