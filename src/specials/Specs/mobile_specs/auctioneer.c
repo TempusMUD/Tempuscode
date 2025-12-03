@@ -313,7 +313,7 @@ load_auctions()
 static struct xmlc_node *
 xml_collect_auc_bids(GList *bids)
 {
-    struct xmlc_node *result;
+    struct xmlc_node *result = NULL;
 
     for (GList *it = bids; it; it = it->next) {
         struct bid_data *bid = it->data;
@@ -333,7 +333,7 @@ xml_collect_auc_bids(GList *bids)
 static struct xmlc_node *
 xml_collect_itemdata(GList *itemdata)
 {
-    struct xmlc_node *result;
+    struct xmlc_node *result = NULL;
 
     for (GList *ai = auctions; ai; ai = ai->next) {
         struct auction_data *auc = ai->data;
