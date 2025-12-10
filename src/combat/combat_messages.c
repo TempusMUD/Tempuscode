@@ -1425,7 +1425,7 @@ skill_message(int dam, struct creature *ch, struct creature *vict,
                should_display_miss);
     }
 
-    act_if(victim_msg, false, ch, weapon, vict, TO_VICT,
+    act_if(victim_msg, false, ch, weapon, vict, TO_VICT | TO_SLEEP,
            should_display_miss);
     act_if(room_msg, false, ch, weapon, vict, TO_NOTVICT | TO_VICT_RM,
            should_display_miss);
