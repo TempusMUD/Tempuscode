@@ -206,6 +206,8 @@ store_mail(const char *from_name, long to_id, const char *txt, GList *cc_list,
                         xml_splice(xml_collect_obj_list(obj_list)),
                         NULL));
 
+    g_list_free_full(mailBag, (GDestroyNotify)extract_obj);
+
     struct obj_data *next_obj;
     for (struct obj_data *obj = obj_list;obj;obj = next_obj) {
         next_obj = obj->next_content;
