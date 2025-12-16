@@ -47,9 +47,11 @@ SPECIAL(abandoned_cavern)
                     "You die a horrible death!!", false, vict, NULL, NULL,
                     TO_CHAR | TO_SLEEP);
 
-                mudlog(GET_INVIS_LVL(vict), BRF, true,
-                       "%s killed in a cave-in at %d",
-                       GET_NAME(vict), cavern->number);
+                if (IS_PC(vict)) {
+                    mudlog(GET_INVIS_LVL(vict), BRF, true,
+                           "%s killed in a cave-in at %d",
+                           GET_NAME(vict), cavern->number);
+                }
 
                 if ((rubble = read_object(RUBBLE_VNUM))) {
                     for (i = 0; i < NUM_WEARS; i++) {
