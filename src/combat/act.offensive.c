@@ -671,6 +671,11 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
         *dam = dice(3, GET_LEVEL(ch) / 8);
         *wait = 4 RL_SEC;
         *vict_wait = 2 RL_SEC;
+        af->type = SKILL_CHOKE;
+        af->duration = 1;
+        af->owner = GET_IDNUM(ch);
+        af->aff_index = 3;
+        af->bitvector = AFF3_MUTED;
         break;
 
     case SKILL_BEHEAD:
