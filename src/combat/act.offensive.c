@@ -2722,6 +2722,7 @@ shoot_projectile_gun(struct creature *ch,
                      struct creature *vict,
                      struct obj_data *target, struct obj_data *gun)
 {
+    struct obj_data *clip = NULL;
     struct obj_data *bullet = NULL;
     struct obj_data *dum_obj;
     int16_t prob, dam;
@@ -2737,13 +2738,18 @@ shoot_projectile_gun(struct creature *ch,
     if (MAX_LOAD(gun)) {
         bullet = gun->contains;
         if (!bullet) {
-            act("$p is not loaded.", false, ch, gun, NULL, TO_CHAR);
+            act("Click.  $p is not loaded.", false, ch, gun, NULL, TO_CHAR);
             return;
         }
     } else {
-        bullet = gun->contains->contains;
+        clip = gun->contains;
+        if (!clip) {
+            act("Click.  $p is not loaded.", false, ch, gun, NULL, TO_CHAR);
+            return;
+        }
+        bullet = clip->contains;
         if (!bullet) {
-            act("$P is not loaded.", false, ch, gun, gun->contains, TO_CHAR);
+            act("Click.  $P is not loaded.", false, ch, gun, clip, TO_CHAR);
             return;
         }
     }
