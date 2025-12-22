@@ -251,6 +251,11 @@ ACMD(do_lecture)
         return;
     }
 
+    if (AFF3_FLAGGED(ch, AFF3_MUTED)) {
+        send_to_char(ch, "You cannot able lecture without speaking!\r\n");
+        return;
+    }
+
     if (!AWAKE(vict)) {
         act("$E is not in a state which is receptive to the finer points of lecturing.", false, ch, NULL, vict, TO_CHAR);
         return;

@@ -1228,6 +1228,18 @@ cast_spell(struct creature *ch, struct creature *tch,
         WAIT_STATE(ch, 2 RL_SEC);
         return 0;
     }
+    if (AFF3_FLAGGED(ch, AFF3_MUTED) &&
+        (SPELL_IS_MAGIC(spellnum) || SPELL_IS_DIVINE(spellnum))) {
+        send_to_char(ch, "You cannot form the words to cast spells!\r\n");
+        return 0;
+    }
+    if (SPELL_IS_BARD(spellnum)) {
+        struct bard_song *song = &songs[spellnum];
+        if (song && !song->instrumental && AFF3_FLAGGED(ch, AFF3_MUTED)) {
+            send_to_char(ch, "You cannot form the words to sing songs!\r\n");
+            return 0;
+        }
+    }
     if (IS_SET(SINFO.routines, MAG_GROUPS) && !AFF_FLAGGED(ch, AFF_GROUP) &&
         !IS_SET(SINFO.routines, MAG_BARD)) {
         send_to_char(ch, "You can't do this if you're not in a group!\r\n");
@@ -1581,6 +1593,12 @@ ACMD(do_cast)
     }
 
     if (!(find_spell_targets(ch, cmd, argument, &spellnum, &target, &tch, &tobj, &tdir))) {
+        return;
+    }
+
+    if (AFF3_FLAGGED(ch, AFF3_MUTED) &&
+        (SPELL_IS_MAGIC(spellnum) || SPELL_IS_DIVINE(spellnum))) {
+        send_to_char(ch, "You cannot form the words to cast that spell!\r\n");
         return;
     }
 
@@ -2317,6 +2335,12 @@ ACMD(do_perform)
 
     if (room_is_underwater(ch->in_room)) {
         send_to_char(ch, "You can't sing or play underwater!\r\n");
+        return;
+    }
+
+    struct bard_song *song = &songs[spellnum];
+    if (song && !song->instrumental && AFF3_FLAGGED(ch, AFF3_MUTED)) {
+        send_to_char(ch, "You cannot perform this song without your voice!\r\n");
         return;
     }
 

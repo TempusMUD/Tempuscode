@@ -906,6 +906,10 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
         break;
 
     case SKILL_SCREAM:
+        if (AFF3_FLAGGED(ch, AFF3_MUTED)) {
+            send_to_char(ch, "You have a mouth, but you cannot scream!\r\n");
+            return -1;
+        }
         if (IS_UNDEAD(vict)) {
             prob = 0;
         }
@@ -1284,6 +1288,11 @@ ACMD(do_order)
     struct room_data *org_room;
     struct creature *vict;
     struct follow_type *k = NULL;
+
+    if (AFF3_FLAGGED(ch, AFF3_MUTED)) {
+        send_to_char(ch, "You cannot speak to issue your commands!\r\n");
+        return;
+    }
 
     name = tmp_getword(&argument);
     message = argument;

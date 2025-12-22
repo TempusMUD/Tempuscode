@@ -2404,6 +2404,7 @@ struct aff_flag_message {
     bool bad;
     const char *msg;
 } aff_flag_messages[] = {
+    { 2, AFF3_MUTED, true, "You cannot speak!" },
     { 0, AFF_BLIND, true, "You have been blinded!" },
     { 0, AFF_INVISIBLE, false, "You are invisible." },
     { 0, AFF_DETECT_ALIGN, false, "You can discern the alignment of others." },

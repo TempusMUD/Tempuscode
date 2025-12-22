@@ -256,7 +256,7 @@ ACMD(do_battlecry)
     if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
         send_to_char(ch,
                      "You just feel too damn peaceful here to do that.\r\n");
-    } else if (CHECK_SKILL(ch, skillnum) < number(50, 110)) {
+    } else if (CHECK_SKILL(ch, skillnum) < number(50, 110) || AFF3_FLAGGED(ch, AFF3_MUTED)) {
         send_to_char(ch, "You emit a feeble warbling sound.\r\n");
         act("$n makes a feeble warbling sound.", false, ch, NULL, NULL, TO_ROOM);
     } else if (GET_MANA(ch) < 5) {

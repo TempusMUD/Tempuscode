@@ -765,10 +765,16 @@ ACMD(do_use)
                              arg);
                 return;
             }
-            if (subcmd == SCMD_RECITE && !can_see_object(ch, mag_item)) {
-                act("You can't see $p well enough to recite from it.",
-                    false, ch, mag_item, NULL, TO_CHAR);
-                return;
+            if (subcmd == SCMD_RECITE) {
+                if (!can_see_object(ch, mag_item)) {
+                    act("You can't see $p well enough to recite from it.",
+                        false, ch, mag_item, NULL, TO_CHAR);
+                    return;
+                }
+                if (AFF3_FLAGGED(ch, AFF3_MUTED)) {
+                    send_to_char(ch, "You cannot recite the words!\r\n");
+                    return;
+                }
             }
             break;
         case SCMD_READ:

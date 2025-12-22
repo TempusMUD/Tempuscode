@@ -102,6 +102,11 @@ ACMD(do_sayto)
     char *name;
     int ignore;
 
+    if (AFF3_FLAGGED(ch, AFF3_MUTED)) {
+        send_to_char(ch, "You cannot speak!\r\n");
+        return;
+    }
+
     if (PLR_FLAGGED(ch, PLR_AFK)) {
         send_to_char(ch, "You are no longer afk.\r\n");
         REMOVE_BIT(PLR_FLAGS(ch), PLR_AFK);
@@ -225,6 +230,11 @@ ACMD(do_say)
     int find_action(int cmd);
     ACMD(do_action);
     const char *cmdstr = cmd_info[cmd].command;
+
+    if (AFF3_FLAGGED(ch, AFF3_MUTED)) {
+        send_to_char(ch, "You cannot speak!\r\n");
+        return;
+    }
 
     if (PLR_FLAGGED(ch, PLR_AFK)) {
         send_to_char(ch, "You are no longer afk.\r\n");
@@ -577,6 +587,11 @@ ACMD(do_whisper)
     struct creature *vict;
     char *vict_str = tmp_getword(&argument);
 
+    if (AFF3_FLAGGED(ch, AFF3_MUTED)) {
+        send_to_char(ch, "You cannot get out even a whisper!\r\n");
+        return;
+    }
+
     if (!*vict_str || !*argument) {
         send_to_char(ch, "To whom do you want to whisper.. and what??\r\n");
     } else if (!(vict = get_char_room_vis(ch, vict_str))) {
@@ -865,6 +880,12 @@ ACMD(do_gen_comm)
     char *imm_actstr, *actstr;
 
     chan = &channels[subcmd];
+
+    if (AFF3_FLAGGED(ch, AFF3_MUTED) &&
+        (subcmd == SCMD_SHOUT || subcmd == SCMD_HOLLER)) {
+        send_to_char(ch, "You cannot shout!\r\n");
+        return;
+    }
 
     // pets can't shout on interplanar channels
     if (!ch->desc && ch->master && !chan->check_plane) {

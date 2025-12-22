@@ -463,6 +463,7 @@ enum aff3_bit {
     AFF3_SYMBOL_OF_PAIN = (1 << 23),    // Char's mind is burning with pain
     AFF3_EMP_SHIELD = (1 << 24),    // EMP SHIELDING
     AFF3_INST_AFF = (1 << 25),  // Affected by an instant affect
+    AFF3_MUTED = (1 << 26),      // Cannot speak or cast verbal spells
     AFF3_TAINTED = (1 << 27),   // Knight spell, "taint"
     AFF3_INFILTRATE = (1 << 28),    // Merc skill infiltrate
     AFF3_DIVINE_POWER = (1 << 29),
