@@ -141,10 +141,8 @@ preload_accounts(const char *conditions)
     const char **fields;
     PGresult *res;
 
-    res =
-        sql_query
-            ("select idnum, name, password, email, date_part('epoch', creation_time) as creation_time, creation_addr, date_part('epoch', login_time) as login_time, login_addr, date_part('epoch', entry_time) as entry_time, ansi_level, compact_level, term_height, term_width, banned, reputation, quest_points, quest_banned, bank_past, bank_future, metric_units, trust from accounts where %s",
-            conditions);
+    res = sql_query("select idnum, name, password, email, date_part('epoch', creation_time) as creation_time, creation_addr, date_part('epoch', login_time) as login_time, login_addr, date_part('epoch', entry_time) as entry_time, ansi_level, compact_level, term_height, term_width, banned, reputation, quest_points, quest_banned, bank_past, bank_future, metric_units, trust from accounts where %s",
+                    conditions);
     acct_count = PQntuples(res);
 
     if (acct_count < 1) {
@@ -340,8 +338,8 @@ account_by_name(char *name)
     }
 
     // Apprently, we don't, so look it up on the db
-    res = sql_query("select idnum from accounts where lower(name)='%s'",
-                    tmp_sqlescape(tmp_tolower(name)));
+    res = sql_query("select idnum from accounts where lower(name)=%s",
+                    tmp_tolower(name));
     if (PQntuples(res) != 1) {
         return NULL;
     }
@@ -363,8 +361,8 @@ accounts_by_email(char *email)
     PGresult *res;
     GList *result = NULL;
 
-    res = sql_query("select idnum from accounts where lower(email)='%s' order by name",
-                    tmp_sqlescape(tmp_tolower(email)));
+    res = sql_query("select idnum from accounts where lower(email)=%s order by name",
+                    tmp_tolower(email));
     if (PQntuples(res) == 0) {
         return NULL;
     }
@@ -437,9 +435,8 @@ account_create_char(struct account *account, const char *name, long idnum)
     account->chars =
         g_list_append(account->chars, GINT_TO_POINTER(GET_IDNUM(ch)));
 
-    sql_exec
-        ("insert into players (idnum, name, account) values (%ld, '%s', %d)",
-        GET_IDNUM(ch), tmp_sqlescape(name), account->id);
+    sql_exec("insert into players (idnum, name, account) values (%ld, %s, %d)",
+             GET_IDNUM(ch), name, account->id);
 
     // New characters shouldn't get old mail.
     if (has_mail(GET_IDNUM(ch))) {
@@ -623,9 +620,8 @@ account_logout(struct account *account, struct descriptor_data *d, bool forced)
         }
         account->login_addr = strdup(d->host);
 
-        sql_exec
-            ("update accounts set login_addr='%s', login_time='%s' where idnum=%d",
-            tmp_sqlescape(account->login_addr), tmp_ctime(account->login_time),
+        sql_exec("update accounts set login_addr=%s, login_time=%t where idnum=%d",
+            account->login_addr, tmp_ctime(account->login_time),
             account->id);
 
         slog("%slogout: %s[%d] from %s", (forced) ? "forced " : "",
@@ -667,10 +663,9 @@ account_initialize(struct account *account,
     account->trust = 0;
 
     slog("new account: %s[%d] from %s", account->name, idnum, d->host);
-    sql_exec
-        ("insert into accounts (idnum, name, creation_time, creation_addr, login_time, login_addr, ansi_level, compact_level, term_height, term_width, reputation, bank_past, bank_future) values (%d, '%s', now(), '%s', now(), '%s', 0, 0, %d, %d, 0, 0, 0)",
-        idnum, tmp_sqlescape(name), tmp_sqlescape(d->host),
-        tmp_sqlescape(d->host), DEFAULT_TERM_HEIGHT, DEFAULT_TERM_WIDTH);
+    sql_exec("insert into accounts (idnum, name, creation_time, creation_addr, login_time, login_addr, ansi_level, compact_level, term_height, term_width, reputation, bank_past, bank_future) values (%d, %s, now(), %s, now(), %s, 0, 0, %d, %d, 0, 0, 0)",
+             idnum, name, d->host,
+             d->host, DEFAULT_TERM_HEIGHT, DEFAULT_TERM_WIDTH);
 }
 
 bool
@@ -701,16 +696,16 @@ account_set_password(struct account *account, const char *pw)
     }
     free(account->password);
     account->password = strdup(crypt(pw, salt));
-    sql_exec("update accounts set password='%s' where idnum=%d",
-             tmp_sqlescape(account->password), account->id);
+    sql_exec("update accounts set password=%s where idnum=%d",
+             account->password, account->id);
 }
 
 void
 account_set_banned(struct account *account, bool banned)
 {
     account->banned = banned;
-    sql_exec("update accounts set banned='%s' where idnum=%d",
-             account->banned ? "T" : "F", account->id);
+    sql_exec("update accounts set banned=%b where idnum=%d",
+                    account->banned, account->id);
 }
 
 void
@@ -741,7 +736,7 @@ account_set_past_bank(struct account *account, money_t amt)
 {
     account->bank_past = amt;
     sql_exec("update accounts set bank_past=%" PRId64 " where idnum=%d",
-             account->bank_past, account->id);
+                    account->bank_past, account->id);
 }
 
 void
@@ -749,7 +744,7 @@ account_set_future_bank(struct account *account, money_t amt)
 {
     account->bank_future = amt;
     sql_exec("update accounts set bank_future=%" PRId64 " where idnum=%d",
-             account->bank_future, account->id);
+                    account->bank_future, account->id);
 }
 
 void
@@ -808,8 +803,8 @@ account_set_email_addr(struct account *account, const char *addr)
     if (strlen(account->email) > 255) {
         account->email[255] = '\0';
     }
-    sql_exec("update accounts set email='%s' where idnum=%d",
-             tmp_sqlescape(account->email), account->id);
+    sql_exec("update accounts set email=%s where idnum=%d",
+             account->email, account->id);
 }
 
 long
@@ -847,9 +842,8 @@ account_exhume_char(struct account *account, struct creature *exhumer, long id)
 
     victim = load_player_from_xml(id);
     if (victim) {
-        sql_exec
-            ("insert into players (idnum, account, name) values (%ld, %d, '%s')",
-            GET_IDNUM(victim), account->id, tmp_sqlescape(GET_NAME(victim)));
+        sql_exec("insert into players (idnum, account, name) values (%ld, %d, %s)",
+                 GET_IDNUM(victim), account->id, GET_NAME(victim));
         load_players(account);
         send_to_char(exhumer, "%s exhumed.\r\n",
                      tmp_capitalize(GET_NAME(victim)));
@@ -1035,16 +1029,16 @@ void
 account_set_quest_banned(struct account *account, bool banned)
 {
     account->quest_banned = banned;
-    sql_exec("update accounts set quest_banned='%s' where idnum=%d",
-             banned ? "T" : "F", account->id);
+    sql_exec("update accounts set quest_banned=%b where idnum=%d",
+                    banned, account->id);
 }
 
 void
 account_set_metric(struct account *account, bool metric)
 {
     account->metric_units = metric;
-    sql_exec("update accounts set metric_units='%s' where idnum=%d",
-             metric ? "T" : "F", account->id);
+    sql_exec("update accounts set metric_units=%b where idnum=%d",
+                    metric, account->id);
 }
 void
 account_set_trust(struct account *account, int trust)

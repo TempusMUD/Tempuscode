@@ -1548,7 +1548,7 @@ SPECIAL(bank)
             send_to_char(ch, "You deposit %'d %s%s in the clan account.\r\n",
                          amount, CURRENCY(ch), PLURAL(amount));
             sql_exec("update clans set bank=%" PRId64 " where idnum=%d",
-                     clan->bank_account, clan->number);
+                            clan->bank_account, clan->number);
             slog("CLAN: %s clandep (%s) %d.", GET_NAME(ch),
                  clan->name, amount);
         } else {
@@ -1593,7 +1593,7 @@ SPECIAL(bank)
             }
             clan->bank_account -= amount;
             sql_exec("update clans set bank=%" PRId64 " where idnum=%d",
-                     clan->bank_account, clan->number);
+                            clan->bank_account, clan->number);
         } else {
             if (BANK_MONEY(ch) < amount) {
                 send_to_char(ch, "You don't have that many %ss deposited!\r\n",
@@ -1671,7 +1671,7 @@ SPECIAL(bank)
             }
             clan->bank_account -= amount;
             sql_exec("update clans set bank=%" PRId64 " where idnum=%d",
-                     clan->bank_account, clan->number);
+                            clan->bank_account, clan->number);
         } else {
             if (BANK_MONEY(ch) < amount) {
                 send_to_char(ch, "You don't have that many %ss deposited!\r\n",

@@ -6427,8 +6427,8 @@ perform_set(struct creature *ch, struct creature *vict, bool is_file, int set_id
         }
         // Set name
         if (IS_PC(vict)) {
-            sql_exec("update players set name='%s' where idnum=%ld",
-                     tmp_sqlescape(argument), GET_IDNUM(vict));
+            sql_exec("update players set name=%s where idnum=%ld",
+                            argument, GET_IDNUM(vict));
             crashsave(vict);
         }
         send_to_char(ch, "Okay.\r\n");

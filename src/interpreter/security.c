@@ -589,7 +589,7 @@ ACMD(do_access)
             if (player_id) {
                 add_role_member(role, player_id);
                 sql_exec("insert into sgroup_members (sgroup, player) "
-                         "values (%d, %d)", role->id, player_id);
+                                "values (%d, %d)", role->id, player_id);
 
                 send_to_char(ch, "Member added : %s\r\n", token);
                 slog("Security:  %s added to role '%s' by %s.",
@@ -621,7 +621,7 @@ ACMD(do_access)
                 send_to_char(ch, "Command added : %s\r\n",
                              cmd_info[command_idx].command);
                 sql_exec("insert into sgroup_commands (sgroup, command) "
-                         "values (%d, '%s')",
+                                "values (%d, %s)",
                          role->id, cmd_info[command_idx].command);
 
                 slog("Security:  command %s added to role '%s' by %s.",
@@ -648,7 +648,7 @@ ACMD(do_access)
 
         set_role_admin_role(role, token);
         sql_exec("update sgroups set admin=%d where idnum=%d",
-                 role->id, admin_role->id);
+                        admin_role->id, role->id);
         send_to_char(ch, "Administrative role set.\r\n");
         break;
     case 3:                    // cmdlist
@@ -690,7 +690,7 @@ ACMD(do_access)
             role->id = role_id;
 
             sql_exec("insert into sgroups (idnum, name, descrip) "
-                     "values (%d, '%s', 'No description.')", role_id, token);
+                            "values (%d, %s, %s)", role_id, token, "No description.");
 
             roles = g_list_prepend(roles, role);
 
@@ -713,8 +713,8 @@ ACMD(do_access)
         }
         set_role_description(role, argument);
         send_to_char(ch, "Description set.\r\n");
-        sql_exec("update sgroups set descrip='%s' where idnum=%d",
-                 tmp_sqlescape(argument), role->id);
+        sql_exec("update sgroups set descrip=%s where idnum=%d",
+                        argument, role->id);
         slog("Security:  Role '%s' described by %s.", token, GET_NAME(ch));
         break;
     case 6:                    // rolelist
@@ -775,7 +775,7 @@ ACMD(do_access)
             if (player_id) {
                 remove_role_member(role, player_id);
                 sql_exec("delete from sgroup_members "
-                         "where sgroup=%d and player=%d", role->id, player_id);
+                                "where sgroup=%d and player=%d", role->id, player_id);
 
                 send_to_char(ch, "Member removed : %s\r\n", token);
                 slog("Security:  %s removed from role '%s' by %s.",
@@ -806,7 +806,7 @@ ACMD(do_access)
                 send_to_char(ch, "Command removed : %s\r\n",
                              cmd_info[command_idx].command);
                 sql_exec("delete from sgroup_commands "
-                         "where sgroup = %d and command='%s'",
+                                "where sgroup = %d and command=%s",
                          role->id, cmd_info[command_idx].command);
 
                 slog("Security:  command %s removed from role '%s' by %s.",

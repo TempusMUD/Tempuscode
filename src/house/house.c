@@ -937,7 +937,7 @@ reconcile_clan_collection(struct house *house, int cost)
         clan->bank_account = 0;
     }
     sql_exec("update clans set bank=%" PRId64 " where idnum=%d",
-             clan->bank_account, clan->number);
+                    clan->bank_account, clan->number);
     return cost;
 }
 

@@ -275,9 +275,8 @@ ACMD(do_enroll)
         member->next = clan->member_list;
         clan->member_list = member;
         sort_clanmembers(clan);
-        sql_exec
-            ("insert into clan_members (clan, player, rank, no_mail) values (%d, %ld, %d, 'f')",
-            clan->number, GET_IDNUM(vict), 0);
+        sql_exec("insert into clan_members (clan, player, rank, no_mail) values (%d, %ld, %d, %b)",
+                        clan->number, GET_IDNUM(vict), 0, false);
     }
 }
 
@@ -357,8 +356,8 @@ ACMD(do_join)
     member->next = clan->member_list;
     clan->member_list = member;
     sort_clanmembers(clan);
-    sql_exec("insert into clan_members (clan, player, rank, no_mail) values (%d, %ld, %d, 'f')",
-             clan->number, GET_IDNUM(ch), 0);
+    sql_exec("insert into clan_members (clan, player, rank, no_mail) values (%d, %ld, %d, %b)",
+                    clan->number, GET_IDNUM(ch), 0, false);
 }
 
 bool
@@ -551,7 +550,7 @@ ACMD(do_promote)
             // Normal rank promotion
             vict_member->rank++;
             sql_exec("update clan_members set rank=%d where player=%ld",
-                     vict_member->rank, GET_IDNUM(vict));
+                            vict_member->rank, GET_IDNUM(vict));
             msg = tmp_sprintf("%s has promoted %s to clan rank %s (%d)",
                               GET_NAME(ch),
                               (ch == vict) ? "self" : GET_NAME(vict),
@@ -590,7 +589,7 @@ ACMD(do_demote)
         } else {
             member1->rank--;
             sql_exec("update clan_members set rank=%d where player=%ld",
-                     member1->rank, GET_IDNUM(vict));
+                            member1->rank, GET_IDNUM(vict));
             msg = tmp_sprintf("%s has demoted self to clan rank %s (%d)",
                               GET_NAME(ch),
                               clan_rankname(clan, member1->rank), member1->rank);
@@ -620,7 +619,7 @@ ACMD(do_demote)
     } else {
         member2->rank--;
         sql_exec("update clan_members set rank=%d where player=%ld",
-                 member2->rank, GET_IDNUM(vict));
+                        member2->rank, GET_IDNUM(vict));
         msg = tmp_sprintf("%s has demoted %s to clan rank %s (%d)",
                           GET_NAME(ch),
                           GET_NAME(vict), clan_rankname(clan, member2->rank), member2->rank);
@@ -644,8 +643,8 @@ ACMD(do_clanmail)
         send_to_char(ch, "You are not properly installed in the clan.\r\n");
     } else {
         member->no_mail = !member->no_mail;
-        sql_exec("update clan_members set no_mail='%c' where player=%ld",
-                 (member->no_mail) ? 'T' : 'F', GET_IDNUM(ch));
+        sql_exec("update clan_members set no_mail=%b where player=%ld",
+                        member->no_mail, GET_IDNUM(ch));
         if (member->no_mail) {
 
             send_to_char(ch,
@@ -867,8 +866,8 @@ ACMD(do_clanpasswd)
 
     free(clan->password);
     clan->password = strdup(argument);
-    sql_exec("update clans set password='%s' where idnum=%d",
-             tmp_sqlescape(clan->password), clan->number);
+    sql_exec("update clans set password=%s where idnum=%d",
+                    clan->password, clan->number);
     slog("%s set clan %d password to '%s'.",
          GET_NAME(ch), clan->number, clan->password);
     send_to_char(ch, "Clan password set to '%s'.\r\n", argument);
@@ -1086,7 +1085,7 @@ ACMD(do_cedit)
                 free(clan->name);
             }
             clan->name = strdup(argument);
-            sql_exec("update clans set name='%s' where idnum=%d",
+            sql_exec("update clans set name=%s where idnum=%d",
                      clan->name, clan->number);
             slog("(cedit) %s set clan %d name to '%s'.", GET_NAME(ch),
                  clan->number, clan->name);
@@ -1103,8 +1102,8 @@ ACMD(do_cedit)
                 free(clan->badge);
             }
             clan->badge = strdup(argument);
-            sql_exec("update clans set badge='%s' where idnum=%d",
-                     tmp_sqlescape(clan->badge), clan->number);
+            sql_exec("update clans set badge=%s where idnum=%d",
+                            clan->badge, clan->number);
             slog("(cedit) %s set clan %d badge to '%s'.", GET_NAME(ch),
                  clan->number, clan->badge);
 
@@ -1120,8 +1119,8 @@ ACMD(do_cedit)
                 free(clan->password);
             }
             clan->password = strdup(argument);
-            sql_exec("update clans set password='%s' where idnum=%d",
-                     tmp_sqlescape(clan->password), clan->number);
+            sql_exec("update clans set password=%s where idnum=%d",
+                            clan->password, clan->number);
             slog("(cedit) %s set clan %d password to '%s'.", GET_NAME(ch),
                  clan->number, clan->password);
 
@@ -1160,11 +1159,10 @@ ACMD(do_cedit)
                         member->rank = clan->top_rank;
                     }
                 }
-                sql_exec
-                    ("update clan_members set rank=%d where clan=%d and rank > %d",
-                    clan->top_rank, clan->number, clan->top_rank);
+                sql_exec("update clan_members set rank=%d where clan=%d and rank > %d",
+                         clan->top_rank, clan->number, clan->top_rank);
                 sql_exec("delete from clan_ranks where clan=%d and rank > %d",
-                         clan->number, clan->top_rank);
+                                clan->number, clan->top_rank);
 
                 slog("(cedit) %s set clan %d top to %d.", GET_NAME(ch),
                      clan->number, clan->top_rank);
@@ -1232,7 +1230,7 @@ ACMD(do_cedit)
                          clan->bank_account, money);
             clan->bank_account = money;
             sql_exec("update clans set bank=%" PRId64 " where idnum=%d",
-                     money, clan->number);
+                            money, clan->number);
 
             return;
 
@@ -1254,7 +1252,7 @@ ACMD(do_cedit)
             slog("(cedit) %s set clan %d owner to %s.", GET_NAME(ch),
                  clan->number, argument);
             sql_exec("update clans set owner=%d where idnum=%d",
-                     i, clan->number);
+                            i, clan->number);
             return;
         }
         // cedit set member
@@ -1360,7 +1358,7 @@ ACMD(do_cedit)
             slog("(cedit) %s added room %d to clan %d.", GET_NAME(ch),
                  room->number, clan->number);
             sql_exec("insert into clan_rooms (clan, room) values (%d, %d)",
-                     clan->number, room->number);
+                            clan->number, room->number);
 
             return;
         }
@@ -1446,7 +1444,7 @@ ACMD(do_cedit)
             slog("(cedit) %s removed room %d from clan %d.",
                  GET_NAME(ch), room->number, clan->number);
             sql_exec("delete from clan_rooms where clan=%d and room=%d",
-                     clan->number, room->number);
+                            clan->number, room->number);
 
             return;
 
@@ -1481,7 +1479,7 @@ ACMD(do_cedit)
             slog("(cedit) %s removed member %d from clan %d.",
                  GET_NAME(ch), i, clan->number);
             sql_exec("delete from clan_members where clan=%d and player=%d",
-                     clan->number, i);
+                            clan->number, i);
 
             return;
         } else {

@@ -28,8 +28,8 @@ static void send_recovery_email(char *email, const char *code);
 bool
 can_try_recovery(const char *email, const char *ipaddr)
 {
-    PGresult *res = sql_query("select count(*) from recoveries where (ipaddress='%s' or email='%s') and attempted_at > (now() - interval '10 minutes')",
-                       tmp_sqlescape(ipaddr), tmp_sqlescape(email));
+    PGresult *res = sql_query("select count(*) from recoveries where (ipaddress=%s or email=%s) and attempted_at > (now() - interval '10 minutes')",
+                                     ipaddr, email);
     return atoi(PQgetvalue(res, 0, 0)) == 0;
 }
 
@@ -38,8 +38,8 @@ can_try_recovery(const char *email, const char *ipaddr)
 bool
 recovery_code_check(const char *email, const char *code)
 {
-    PGresult *res = sql_query("select count(*) from recoveries where email='%s' and code_hash=crypt('%s', code_hash) and attempted_at > (now() - interval '10 minutes')",
-                       tmp_sqlescape(email), tmp_sqlescape(code));
+    PGresult *res = sql_query("select count(*) from recoveries where email=%s and code_hash=crypt(%s, code_hash) and attempted_at > (now() - interval '10 minutes')",
+                                     email, code);
     return atoi(PQgetvalue(res, 0, 0)) != 0;
 }
 
@@ -58,10 +58,8 @@ account_setup_recovery(char *email, const char *ipaddr)
     code[16] = '\0';
 
     // insert recovery record
-    sql_exec("insert into recoveries (ipaddress, email, attempted_at, code_hash) values ('%s', '%s', now(), crypt('%s', gen_salt('bf')))",
-             tmp_sqlescape(ipaddr),
-             tmp_sqlescape(email),
-             tmp_sqlescape(code));
+    sql_exec("insert into recoveries (ipaddress, email, attempted_at, code_hash) values (%s, %s, now(), crypt(%s, gen_salt('bf')))",
+             ipaddr, email, code);
     send_recovery_email(email, code);
     slog("Sent recovery email to %s", email);
 }

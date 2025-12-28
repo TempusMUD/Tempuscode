@@ -59,8 +59,8 @@ player_name_exists(const char *name)
     PGresult *res;
     int result;
 
-    res = sql_query("select COUNT(*) from players where lower(name)='%s'",
-                    tmp_sqlescape(tmp_tolower(name)));
+    res = sql_query("select COUNT(*) from players where lower(name)=%s",
+                           tmp_tolower(name));
     if (PQresultStatus(res) != PGRES_TUPLES_OK) {
         return 0;
     }
@@ -105,8 +105,8 @@ player_idnum_by_name(const char *name)
     PGresult *res;
     long result;
 
-    res = sql_query("select idnum from players where lower(name)='%s'",
-                    tmp_sqlescape(tmp_tolower(name)));
+    res = sql_query("select idnum from players where lower(name)=%s",
+                           tmp_tolower(name));
     if (PQresultStatus(res) != PGRES_TUPLES_OK) {
         return 0;
     }
@@ -125,8 +125,8 @@ player_account_by_name(const char *name)
     PGresult *res;
     long result;
 
-    res = sql_query("select account from players where lower(name)='%s'",
-                    tmp_sqlescape(tmp_tolower(name)));
+    res = sql_query("select account from players where lower(name)=%s",
+                           tmp_tolower(name));
     if (PQresultStatus(res) != PGRES_TUPLES_OK) {
         return 0;
     }

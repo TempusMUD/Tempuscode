@@ -54,15 +54,13 @@ gen_board_save(struct creature *ch, const char *board, int idnum,
                const char *subject, const char *body)
 {
     if (idnum < 0) {
-        sql_exec
-            ("insert into board_messages (board, post_time, author, name, subject, body) values ('%s', now(), %ld, '%s', '%s', '%s')",
-            tmp_sqlescape(board), GET_IDNUM(ch),
-            tmp_sqlescape(tmp_capitalize(GET_NAME(ch))),
-            tmp_sqlescape(subject), tmp_sqlescape(body));
+        sql_exec("insert into board_messages (board, post_time, author, name, subject, body) values (%s, now(), %ld, %s, %s, %s)",
+                 board, GET_IDNUM(ch),
+            tmp_capitalize(GET_NAME(ch)),
+            subject, body);
     } else {
-        sql_exec
-            ("update board_messages set post_time=now(), subject='%s', body='%s' where idnum=%d",
-            tmp_sqlescape(subject), tmp_sqlescape(body), idnum);
+        sql_exec("update board_messages set post_time=now(), subject=%s, body=%s where idnum=%d",
+                 subject, body, idnum);
     }
 }
 
@@ -148,8 +146,7 @@ gen_board_edit(struct board_data *board, struct creature *ch, char *argument)
         return;
     }
     res =
-        sql_query
-            ("select idnum, subject, body from board_messages where board='%s' order by idnum limit 1 offset %d",
+        sql_query("select idnum, subject, body from board_messages where board=%s order by idnum limit 1 offset %d",
             tmp_sqlescape(board->name), idx);
     if (PQntuples(res) == 0) {
         send_to_char(ch, "That message does not exist on this board.\r\n");
@@ -187,7 +184,7 @@ gen_board_remove(struct board_data *board, struct creature *ch, char *argument)
     // First we find the idnum of the thing we want to destroy
     res =
         sql_query
-            ("select idnum, author from board_messages where board='%s' order by idnum limit 1 offset %d",
+            ("select idnum, author from board_messages where board=%s order by idnum limit 1 offset %d",
             tmp_sqlescape(board->name), idx);
 
     if (PQntuples(res) != 1) {
@@ -208,7 +205,7 @@ gen_board_remove(struct board_data *board, struct creature *ch, char *argument)
     }
 
     sql_exec("delete from board_messages where idnum=%s",
-             PQgetvalue(res, 0, 0));
+                    PQgetvalue(res, 0, 0));
 
     act("$n rips a post off of the board.", true, ch, NULL, NULL, TO_ROOM);
     send_to_char(ch, "The posting was deleted.\r\n");
@@ -242,9 +239,7 @@ gen_board_read(struct board_data *board, struct creature *ch, char *argument)
         send_to_char(ch, "That is not a valid message.\r\n");
         return;
     }
-    res =
-        sql_query
-            ("select extract(epoch from post_time), name, subject, body from board_messages where board='%s' order by idnum limit 1 offset %d",
+    res = sql_query("select extract(epoch from post_time), name, subject, body from board_messages where board=%s order by idnum limit 1 offset %d",
             tmp_sqlescape(board->name), idx);
     if (PQntuples(res) == 0) {
         send_to_char(ch, "That message does not exist on this board.\r\n");
@@ -272,8 +267,7 @@ gen_board_list(struct board_data *board, struct creature *ch)
     time_t post_time;
 
     res =
-        sql_query
-            ("select extract(epoch from post_time), name, subject from board_messages where board='%s' order by idnum desc",
+        sql_query("select extract(epoch from post_time), name, subject from board_messages where board=%s order by idnum desc",
             tmp_sqlescape(board->name));
     count = PQntuples(res);
     if (count == 0) {

@@ -3705,69 +3705,12 @@ sql_query_params_va(const char *str, va_list args)
 }
 
 void
-sql_exec_params(const char *str, ...)
-{
-    va_list args;
-
-    va_start(args, str);
-    PQclear(sql_query_params_va(str, args));
-    va_end(args);
-}
-
-PGresult *
-sql_query_params(const char *str, ...)
-{
-    va_list args;
-    PGresult *res;
-
-    va_start(args, str);
-    res = sql_query_params_va(str, args);
-    va_end(args);
-
-    struct sql_query_data *rec;
-    CREATE(rec, struct sql_query_data, 1);
-    rec->next = sql_query_list;
-    rec->res = res;
-    sql_query_list = rec;
-
-    return res;
-}
-
-static PGresult *
-sql_query_va(const char *str, va_list args)
-{
-    PGresult *res;
-    char *query;
-
-    if (!str || !*str) {
-        return NULL;
-    }
-
-    query = tmp_vsprintf(str, args);
-
-    res = PQexec(sql_cxn, query);
-    if (!res) {
-        errlog("FATAL: Couldn't allocate sql result");
-        safe_exit(1);
-    }
-
-    if (PQresultStatus(res) != PGRES_COMMAND_OK
-        && PQresultStatus(res) != PGRES_TUPLES_OK) {
-        slog("WARNING: sql expression generated error: %s",
-             PQresultErrorMessage(res));
-        slog("FROM SQL: %s", query);
-    }
-
-    return res;
-}
-
-void
 sql_exec(const char *str, ...)
 {
     va_list args;
 
     va_start(args, str);
-    PQclear(sql_query_va(str, args));
+    PQclear(sql_query_params_va(str, args));
     va_end(args);
 }
 
@@ -3778,7 +3721,7 @@ sql_query(const char *str, ...)
     PGresult *res;
 
     va_start(args, str);
-    res = sql_query_va(str, args);
+    res = sql_query_params_va(str, args);
     va_end(args);
 
     struct sql_query_data *rec;

@@ -353,8 +353,8 @@ voting_booth_change_view(struct creature *ch, char *argument, bool secret)
     }
 
     cur_poll->secret = secret;
-    sql_exec("update voting_polls set secret=%s where idnum=%d",
-             secret ? "true" : "false", cur_poll->idnum);
+    sql_exec("update voting_polls set secret=%b where idnum=%d",
+                    secret, cur_poll->idnum);
     send_to_char(ch, "Poll %s is now %s.\r\n", argument,
                  secret ? "secret" : "no longer secret");
 }
