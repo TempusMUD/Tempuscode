@@ -69,7 +69,10 @@ SPECIAL(mage_teleporter)
         return 1;
     }
 
+    GET_GOLD(ch) -= cost;
     perform_say(self, "say", tmp_sprintf("Very well, %s.", GET_NAME(ch)));
+    act(tmp_sprintf("$N takes %'d gold in payment.", cost),
+        true, self, NULL, ch, TO_VICT);
     act("You stares at $N and utters, 'horosafh'.", true, self, NULL, ch,
         TO_CHAR);
     act("$n stares at you and utters, 'horosafh'.", true, self, NULL, ch,
