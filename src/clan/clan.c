@@ -1476,7 +1476,6 @@ ACMD(do_cedit)
             }
 
             remove_member_from_clan(member, clan);
-            free(member);
             send_to_char(ch, "Member removed from the sacred list.\r\n");
 
             slog("(cedit) %s removed member %d from clan %d.",
