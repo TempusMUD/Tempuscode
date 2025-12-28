@@ -248,12 +248,14 @@ can_travel_sector(struct creature *ch, int sector_type, bool active)
         }
         BREATH_COUNT_OF(ch) += 1;
 
-        if (BREATH_COUNT_OF(ch) < creature_breath_threshold(ch) &&
-            BREATH_COUNT_OF(ch) > (creature_breath_threshold(ch) - 2)) {
-            send_to_char(ch, "You are running out of breath.\r\n");
-            return true;
+        if (BREATH_COUNT_OF(ch) >= creature_breath_threshold(ch)) {
+            return false;
         }
-        return false;
+
+        if (BREATH_COUNT_OF(ch) >= creature_breath_threshold(ch) - 2) {
+            send_to_char(ch, "You are running out of breath.\r\n");
+        }
+        return true;
     }
 
     if (sector_type == SECT_FLYING ||
