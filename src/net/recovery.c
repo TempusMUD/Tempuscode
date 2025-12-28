@@ -59,7 +59,9 @@ account_setup_recovery(char *email, const char *ipaddr)
 
     // insert recovery record
     sql_exec("insert into recoveries (ipaddress, email, attempted_at, code_hash) values ('%s', '%s', now(), crypt('%s', gen_salt('bf')))",
-             ipaddr, email, code);
+             tmp_sqlescape(ipaddr),
+             tmp_sqlescape(email),
+             tmp_sqlescape(code));
     send_recovery_email(email, code);
     slog("Sent recovery email to %s", email);
 }
