@@ -368,7 +368,7 @@ perform_tell(struct creature *ch, struct creature *vict, const char *arg)
     act(act_str, false, ch, NULL, vict, TO_VICT | TO_SLEEP);
 
     if (PLR_FLAGGED(vict, PLR_AFK)
-        && g_list_find(AFK_NOTIFIES(vict), GINT_TO_POINTER(GET_IDNUM(ch)))) {
+        && !g_list_find(AFK_NOTIFIES(vict), GINT_TO_POINTER(GET_IDNUM(ch)))) {
         AFK_NOTIFIES(vict) =
             g_list_prepend(AFK_NOTIFIES(vict), GINT_TO_POINTER(GET_IDNUM(ch)));
         if (AFK_REASON(vict)) {
