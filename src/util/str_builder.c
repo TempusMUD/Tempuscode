@@ -96,7 +96,7 @@ sb_strcat(struct str_builder *sb, const char *str, ...)
     }
 
     // If we don't have the space, we allocate more
-    if (len > sb->size - sb->len) {
+    if (len >= sb->size - sb->len) {
         sb_adjust(sb, sb->size + len);
     }
 

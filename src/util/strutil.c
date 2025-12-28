@@ -44,11 +44,15 @@ const char *fill_words[] = {
 size_t
 strcpy_sl(char *dst, size_t size, const char *src)
 {
+    if (size == 0) {
+        return 0;
+    }
     size_t src_len = strlen(src);
     if (src_len + 1 > size) {
         src_len = size - 1;
     }
     if (src_len == 0) {
+        dst[0] = '\0';
         return 0;
     }
     char *cp = mempcpy(dst, src, src_len);
