@@ -802,11 +802,11 @@ ACMD(do_access)
             int command_idx;
             command_idx = find_command(token);
             if (command_idx != -1) {
-                add_role_command(role, &cmd_info[command_idx]);
+                remove_role_command(role, &cmd_info[command_idx]);
                 send_to_char(ch, "Command removed : %s\r\n",
                              cmd_info[command_idx].command);
                 sql_exec("delete from sgroup_commands "
-                         "where sgroup = %d and command='%s') ",
+                         "where sgroup = %d and command='%s'",
                          role->id, cmd_info[command_idx].command);
 
                 slog("Security:  command %s removed from role '%s' by %s.",
