@@ -428,7 +428,9 @@ ACMD(do_track)
                 total++;
             }
         }
-        dir = dirs[random_number_zero_low(total - 1)];
+        if (total > 0) {
+            dir = dirs[random_number_zero_low(total - 1)];
+        }
     }
 
     switch (dir) {
@@ -553,7 +555,9 @@ ACMD(do_psilocate)
                 total++;
             }
         }
-        dir = dirs[random_number_zero_low(total - 1)];
+        if (total > 0) {
+            dir = dirs[random_number_zero_low(total - 1)];
+        }
     }
     error = number(0, 140 - CHECK_SKILL(ch, SKILL_PSILOCATE) - GET_INT(ch));
     error = MAX(0, error) / 8;
@@ -735,7 +739,9 @@ hunt_victim(struct creature *ch)
                     total++;
                 }
             }
-            dir = dirs[random_number_zero_low(total - 1)];
+            if (total > 0) {
+                dir = dirs[random_number_zero_low(total - 1)];
+            }
         }
     } else {
         dir = -1;
