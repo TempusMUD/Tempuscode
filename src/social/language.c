@@ -189,6 +189,7 @@ boot_tongues(const char *path)
     if (!xmlMatches(node->name, "tongues")) {
         xmlFreeDoc(doc);
         errlog("/etc/tongues.xml root node is not tongues!");
+        return;
     }
 
     node = node->children;
