@@ -3556,22 +3556,139 @@ get_corpse_file_path(long id)
     return tmp_sprintf("players/corpses/%0ld/%ld.dat", (id % 10), id);
 }
 
-void
-sql_exec(const char *str, ...)
+
+static PGresult *
+sql_query_params_va(const char *str, va_list args)
 {
     PGresult *res;
-    char *query;
-    va_list args;
 
     if (!str || !*str) {
-        return;
+        return NULL;
     }
 
-    va_start(args, str);
-    query = tmp_vsprintf(str, args);
-    va_end(args);
+    char prev_char = '\0';
+    int param_count = 0;
+    const char *param_values[MAX_SQL_PARAMS];
+    int param_lens[MAX_SQL_PARAMS];
+    struct str_builder q = str_builder_default;
 
-    res = PQexec(sql_cxn, query);
+    for (const char *read_pt = str;*read_pt;read_pt++) {
+        if (*read_pt != '%') {
+            sb_sprintf(&q, "%c", *read_pt);
+            prev_char = *read_pt;
+            continue;
+        }
+        if (prev_char == '%') {
+            sb_sprintf(&q, "%%");
+            // setting this to NUL allows multiple percents next to
+            // each other e.g. %%%% -> %%
+            prev_char = '\0';
+            continue;
+        }
+        char fmt[16];
+        char *write_pt = fmt;
+        const char *param_type = "";
+        int long_modifier = 0; // 0=int, 1=long, 2=long long
+
+        // copy the %
+        *write_pt++ = *read_pt++;
+
+        // copy flags, width, precision, and check for 'l' or 'll'
+        while (*read_pt && !strchr("diouxXscbt", *read_pt)) {
+            if (*read_pt == 'l') {
+                long_modifier++;
+            }
+            *write_pt++ = *read_pt++;
+            if (write_pt - fmt >= 15) {
+                 errlog("FATAL: Format specifier too long in sql_query_params_va");
+                 safe_exit(1);
+            }
+        }
+
+        if (!*read_pt) {
+            errlog("FATAL: Malformed format string in sql_query_params_va: missing conversion specifier");
+            safe_exit(1);
+        }
+
+        // copy conversion specifier
+        char specifier = *read_pt;
+        *write_pt++ = specifier;
+        *write_pt = '\0';
+
+        switch (specifier) {
+        case 's': {
+            char *s = va_arg(args, char *);
+            param_values[param_count] = tmp_sprintf(fmt, s);
+            param_type = "::text";
+            break;
+        }
+        case 'c': {
+            int c = va_arg(args, int);
+            param_values[param_count] = tmp_sprintf(fmt, c);
+            param_type = "::char(1)";
+            break;
+        }
+        case 'b': {
+            int b = va_arg(args, int);
+            param_values[param_count] = b ? "t" : "f";
+            param_type = "::boolean";
+            break;
+        }
+        case 't': {
+            char *s = va_arg(args, char *);
+            param_values[param_count] = tmp_strdup(s);
+            param_type = "::timestamp";
+            break;
+        }
+        case 'i':
+        case 'd': {
+            if (long_modifier == 2) {
+                long long ll = va_arg(args, long long);
+                param_values[param_count] = tmp_sprintf(fmt, ll);
+            } else if (long_modifier == 1) {
+                long l = va_arg(args, long);
+                param_values[param_count] = tmp_sprintf(fmt, l);
+            } else {
+                int i = va_arg(args, int);
+                param_values[param_count] = tmp_sprintf(fmt, i);
+            }
+            param_type = "::bigint";
+            break;
+        }
+        case 'o':
+        case 'u':
+        case 'x':
+        case 'X': {
+            if (long_modifier == 2) {
+                unsigned long long ull = va_arg(args, unsigned long long);
+                param_values[param_count] = tmp_sprintf(fmt, ull);
+            } else if (long_modifier == 1) {
+                unsigned long ul = va_arg(args, unsigned long);
+                param_values[param_count] = tmp_sprintf(fmt, ul);
+            } else {
+                unsigned int u = va_arg(args, unsigned int);
+                param_values[param_count] = tmp_sprintf(fmt, u);
+            }
+            param_type = "::bigint";
+            break;
+        }
+        default:
+            errlog("FATAL: Unsupported %% parameter '%c' in sql_query_params_va", specifier);
+            safe_exit(1);
+            break;
+        }
+        if (param_count >= MAX_SQL_PARAMS) {
+            errlog("FATAL: Exceeded MAX_SQL_PARAMS in sql_query_params_va");
+            safe_exit(1);
+        }
+        param_lens[param_count] = param_values[param_count] ? strlen(param_values[param_count]):0;
+        param_count++;
+        sb_sprintf(&q, "$%d%s", param_count, param_type);
+        prev_char = *read_pt;
+    }
+
+    slog("Executing %s", q.str);
+    res = PQexecParams(sql_cxn, q.str, param_count, NULL, param_values, param_lens, NULL, 0);
     if (!res) {
         errlog("FATAL: Couldn't allocate sql result");
         safe_exit(1);
@@ -3580,26 +3697,53 @@ sql_exec(const char *str, ...)
         && PQresultStatus(res) != PGRES_TUPLES_OK) {
         errlog("FATAL: sql command generated error: %s",
                PQresultErrorMessage(res));
-        errlog("FROM SQL: %s", query);
+        errlog("FROM SQL: %s", q.str);
         raise(SIGSEGV);
     }
-    PQclear(res);
+
+    return res;
+}
+
+void
+sql_exec_params(const char *str, ...)
+{
+    va_list args;
+
+    va_start(args, str);
+    PQclear(sql_query_params_va(str, args));
+    va_end(args);
 }
 
 PGresult *
-sql_query(const char *str, ...)
+sql_query_params(const char *str, ...)
+{
+    va_list args;
+    PGresult *res;
+
+    va_start(args, str);
+    res = sql_query_params_va(str, args);
+    va_end(args);
+
+    struct sql_query_data *rec;
+    CREATE(rec, struct sql_query_data, 1);
+    rec->next = sql_query_list;
+    rec->res = res;
+    sql_query_list = rec;
+
+    return res;
+}
+
+static PGresult *
+sql_query_va(const char *str, va_list args)
 {
     PGresult *res;
     char *query;
-    va_list args;
 
     if (!str || !*str) {
         return NULL;
     }
 
-    va_start(args, str);
     query = tmp_vsprintf(str, args);
-    va_end(args);
 
     res = PQexec(sql_cxn, query);
     if (!res) {
@@ -3607,11 +3751,35 @@ sql_query(const char *str, ...)
         safe_exit(1);
     }
 
-    if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+    if (PQresultStatus(res) != PGRES_COMMAND_OK
+        && PQresultStatus(res) != PGRES_TUPLES_OK) {
         slog("WARNING: sql expression generated error: %s",
              PQresultErrorMessage(res));
         slog("FROM SQL: %s", query);
     }
+
+    return res;
+}
+
+void
+sql_exec(const char *str, ...)
+{
+    va_list args;
+
+    va_start(args, str);
+    PQclear(sql_query_va(str, args));
+    va_end(args);
+}
+
+PGresult *
+sql_query(const char *str, ...)
+{
+    va_list args;
+    PGresult *res;
+
+    va_start(args, str);
+    res = sql_query_va(str, args);
+    va_end(args);
 
     struct sql_query_data *rec;
     CREATE(rec, struct sql_query_data, 1);

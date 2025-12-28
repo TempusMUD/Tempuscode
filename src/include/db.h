@@ -187,10 +187,17 @@ extern dynamic_text_file *dyntext_list;
 
 void check_dyntext_updates(struct creature *ch);
 
+#define MAX_SQL_PARAMS 64
+
 struct sql_query_data {
     struct sql_query_data *next;
     PGresult *res;
 };
+
+void sql_exec_params(const char *str, ...)
+__attribute__ ((format (printf, 1, 2)));
+PGresult *sql_query_params(const char *str, ...)
+__attribute__ ((format (printf, 1, 2)));
 
 // Executes a SQL command, returns true if successful
 void sql_exec(const char *str, ...)
