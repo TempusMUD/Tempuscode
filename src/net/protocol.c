@@ -253,7 +253,7 @@ handle_ttype_sub(struct descriptor_data *d, uint8_t *buf, size_t len)
         // the client version.
         set_desc_variable(d, "CLIENT_VERSION", d->client_info.term_type);
         set_desc_variable(d, "TERMINAL_TYPE", "");
-        d->client_info.bits = atoi(tmp_substr((char *)buf, 5, len - 2));
+        d->client_info.bits = atoi(tmp_strdupn((char *)buf + 5, len - 1 - 5));
         if (d->client_info.bits & CLIENT_INFO_SCREEN_READER) {
             d->display = BLIND;
         }
